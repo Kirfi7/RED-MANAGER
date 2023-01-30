@@ -16,3 +16,4 @@ c.execute("""CREATE TABLE chat (
     )""")
 db.commit()
 db.close()
+# fkjfghfkjhfgjhfgjhfgjhf
