@@ -15,5 +15,6 @@ sen_admin_commands = ['admin', 'админ']
 
 special_commands = ['azov', 'gzov', 'lzov', 'line', 'type', 'sunbanlp', 'sbanpl', 'sunban', 'sban', 'гсопг', 'гсгосс', 'sadmin', 'садмин']
 
-dev_commands = ['dev', 'spec'] #a[esoprifgka
+dev_commands = ['dev', 'spec', 'start']
+
 
