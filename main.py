@@ -3,7 +3,7 @@ import sqlite3
 import vk_api
 
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
-from config import TOKEN, DEV_IDS
+from venv.AppData.config import TOKEN, DEV_IDS
 from models import Get, Data
 
 vk_session = vk_api.VkApi(token=TOKEN)

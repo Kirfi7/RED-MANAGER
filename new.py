@@ -2,7 +2,7 @@ import sqlite3
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from models import Get, Data
-from config import *
+from venv.AppData.config import *
 
 vk_session = vk_api.VkApi(token=TOKEN)
 lp = VkBotLongPoll(vk_session, 218266206)
