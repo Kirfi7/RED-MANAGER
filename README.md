@@ -3,7 +3,7 @@
 Имеется функционал ограничения к связке бесед
 
 Developer - Михаил Алёхин
-Developer - 
+Developer - Кирилл Белоцерковский
 Tester - Прохор Одинец
 
 Developed by the studio "Time Machine".
