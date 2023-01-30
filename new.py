@@ -1,5 +1,4 @@
 import sqlite3
-# fkjfghfkjhfgjhfgjhfgjhf
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from models import Get, Data

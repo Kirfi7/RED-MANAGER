@@ -1,12 +1,7 @@
 import sqlite3
 import datetime
-# fkjfghfkjhfgjhfgjhfgjhf
-# fkjfghfkjhfgjhfgjhfgjhf
 import vk_api
 from venv.AppData.config import TOKEN
-
-
-#1231212
 
 vk_session = vk_api.VkApi(token=TOKEN)
 
