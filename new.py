@@ -63,6 +63,7 @@ for event in lp.listen():
         db = f"data{chat_id}.db"
         message_text = event.object.message['text']
         mid = event.object.message['conversation_message_id']
+        print(event.object.message)
 
         if message_text[0] in prefix:
 
@@ -77,7 +78,7 @@ for event in lp.listen():
                     if to_user_id != 'Error' and to_user_id != 'None' and not ('-' in str(to_user_id)):
                         msg = f"Роль [id{to_user_id}|пользователя] в беседе: {role(Data(db).get_role(to_user_id))}"
                         sender(chat_id, f"Оригинальная ссылка на пользователя: https://vk.com/id{to_user_id}",
-                               mid + 95 + 95)
+                               mid + 95)
                     else:
                         sender(chat_id, "Ссылка указана некорректно.", mid + 95)
 
@@ -177,7 +178,7 @@ for event in lp.listen():
                         sender(chat_id, "Ссылка указана некорректно.", mid + 95)
 
                 elif cmd == 'staff':
-                    sender(chat_id, Data(db).staff()[2], mid + 95)
+                    sender(chat_id, Data(db).staff()[2], mid)
 
                 elif cmd == 'getacc':
                     argument = Get(event.object.message, vk_session).single_argument()
