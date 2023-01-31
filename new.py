@@ -561,7 +561,7 @@ for event in lp.listen():
                     else:
                         sender(chat_id, "Доступные направления бесед: all, gos, opg.", mid + 95)
 
-                elif cmd == 'sunbanlp':
+                elif cmd == 'sunbanpl':
                     pass
 
                 elif cmd == 'sbanpl':
