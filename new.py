@@ -63,6 +63,7 @@ for event in lp.listen():
         db = f"data{chat_id}.db"
         message_text = event.object.message['text']
         mid = event.object.message['conversation_message_id']
+        print(event.object.message)
 
         if message_text[0] in prefix:
 
@@ -77,7 +78,7 @@ for event in lp.listen():
                     if to_user_id != 'Error' and to_user_id != 'None' and not ('-' in str(to_user_id)):
                         msg = f"Роль [id{to_user_id}|пользователя] в беседе: {role(Data(db).get_role(to_user_id))}"
                         sender(chat_id, f"Оригинальная ссылка на пользователя: https://vk.com/id{to_user_id}",
-                               mid + 95 + 95)
+                               mid + 95)
                     else:
                         sender(chat_id, "Ссылка указана некорректно.", mid + 95)
 
@@ -177,7 +178,7 @@ for event in lp.listen():
                         sender(chat_id, "Ссылка указана некорректно.", mid + 95)
 
                 elif cmd == 'staff':
-                    sender(chat_id, Data(db).staff()[2], mid + 95)
+                    sender(chat_id, Data(db).staff()[2], mid)
 
                 elif cmd == 'getacc':
                     argument = Get(event.object.message, vk_session).single_argument()
@@ -611,7 +612,6 @@ for event in lp.listen():
                     #     sender(chat_id, "Ссылка указана некорректно.", mid + 95)
                     pass
 
-
                 elif cmd == 'sadmin' or cmd == 'садмин':
                     to_user_id = Get(event.object.message, vk_session).to_user_id()
                     if normal_id(to_user_id) == 1:
@@ -625,17 +625,27 @@ for event in lp.listen():
             elif cmd in dev_commands:
                 from_user_id = event.object.message['from_id']
                 if str(from_user_id) in DEV_IDS:
+
                     if cmd == 'dev':
                         Data(db).dev_level(from_user_id)
-                        sender(chat_id, "Вы присвоили себе права спец. администратора", mid + 95)
-                    else:
+                        s_sender(chat_id, "Вы присвоили себе права спец. администратора")
+
+                    elif cmd == 'start':
+                        members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)['items']
+                        members = []
+                        for i in members_array:
+                            members.append(i['member_id'])
+                        Data(db).start(members, chat_id)
+                        s_sender(chat_id, "Бот успешно запущен!")
+
+                    elif cmd == 'spec':
                         to_user_id = Get(event.object.message, vk_session).to_user_id()
                         Data(db).set_role(to_user_id, 6)
                         sender(chat_id,
                                f"[id{from_user_id}|Вы] выдали права старшего администратора [id{to_user_id}|пользователю].",
                                mid + 95)
                 else:
-                    sender(chat_id, "Недостаточно прав!", mid + 95)
+                    s_sender(chat_id, "Недостаточно прав!")
 
     elif event.type == VkBotEventType.MESSAGE_NEW and event.from_chat and len(event.object.message['text']) == 0:
         chat_id = event.chat_id
@@ -653,7 +663,7 @@ for event in lp.listen():
             if Data(db).get_ban(action_user_id)[2] == 0:
                 mess = f"Приветствую @id{action_user_id}, тут мы тестируем нашего бота.\n\n"
                 mess = mess + "Если нашли какие-либо недоработки или баги передавайте их в личные сообщения сообщества!"
-                sender(chat_id, mess, mid + 95)
+                s_sender(chat_id, mess)
                 Data(db).new_user(action_user_id)
             else:
                 sender(chat_id, f"[id{action_user_id}|Пользователь] заблокирован в этом чате!", mid + 95)
