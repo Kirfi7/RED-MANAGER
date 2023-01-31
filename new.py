@@ -564,7 +564,7 @@ for event in lp.listen():
 
                 elif cmd == 'type':
                     argument = Get(event.object.message, vk_session).single_argument()
-                    type_list = ['all', 'ms', 'ss', 'bw', 'mk', 'adm', 'ld']
+                    type_list = ['all', 'ms', 'ss', 'bw', 'adm', 'ld']
                     if normal_argument(argument) == 1 and argument in type_list:
                         db = sqlite3.connect('global_base.db')
                         c = db.cursor()
@@ -573,7 +573,7 @@ for event in lp.listen():
                         db.close()
                         sender(chat_id, f"Тип {argument} успешно установлен", mid + 95)
                     else:
-                        sender(chat_id, "Доступные типы бесед: all, ms, ss, bw, mk, adm, ld.", mid + 95)
+                        sender(chat_id, "Доступные типы бесед: all, ms, ss, bw, adm, ld.", mid + 95)
 
                 elif cmd == 'line':
                     argument = Get(event.object.message, vk_session).single_argument()
