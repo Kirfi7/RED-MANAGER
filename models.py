@@ -167,11 +167,11 @@ class Data:
             self.c.execute("""CREATE TABLE warn (
                 user_id integer,
                 admin_id integer,
-                warn_reason text,
-                operation text
+                warn_reason text
                 )""")
             self.c.execute("""CREATE TABLE mute (
-                user_id integer
+                user_id integer,
+                minutes integer
                 )""")
             self.c.execute("""CREATE TABLE users (
                 user_id text,
