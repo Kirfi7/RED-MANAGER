@@ -1,5 +1,5 @@
 TOKEN = 'vk1.a.cdyxNqmJCzzn0-Tt2iAvcFdMMv3nL4_cWIYPP-ej_PNbj8J1djSecMC3kHPz3YocqTdOFVfhvQ436PREHf4zVitxHVdDpvAQo0wExZjQRqjrjuSCBb9FXX90EMM_hUiYPp3d8ckMJSdx5DAYJ8N-mzqLhm0cNTw9bhr-h-QuCaCJdectyqmZj8MYEUkHLVVReC3ybm1g9JHFKAf8QdGWgg'
-DEV_IDS = ['534422651', '16715256', '468509613']
+DEV_IDS = ['534422651', '16715256'] # '468509613'
 
 prefix = ['/', '!', '+']
 
@@ -13,7 +13,7 @@ admin_commands = ['bzov', 'mszov', 'sszov', 'smoder', 'смодер', 'снят'
 
 sen_admin_commands = ['admin', 'админ']
 
-special_commands = ['azov', 'gzov', 'lzov', 'line', 'type', 'sunbanlp', 'sbanpl', 'sunban', 'sban', 'гсопг', 'гсгосс', 'sadmin', 'садмин']
+special_commands = ['azov', 'gzov', 'lzov', 'line', 'type', 'sunbanpl', 'sbanpl', 'sunban', 'sban', 'гсопг', 'гсгосс', 'sadmin', 'садмин']
 
 dev_commands = ['dev', 'spec', 'start']
 

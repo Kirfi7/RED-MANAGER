@@ -1,4 +1,6 @@
 import sqlite3
+import datetime
+import time
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from models import Get, Data
@@ -63,7 +65,6 @@ for event in lp.listen():
         db = f"data{chat_id}.db"
         message_text = event.object.message['text']
         mid = event.object.message['conversation_message_id']
-        print(event.object.message)
 
         if message_text[0] in prefix:
 
@@ -226,7 +227,7 @@ for event in lp.listen():
                 elif cmd == 'unban':
                     to_user_id = Get(event.object.message, vk_session).to_user_id()
                     if normal_id(to_user_id) == 1:
-                        if Data(db).get_ban(to_user_id) != 0:
+                        if Data(db).get_ban(to_user_id) == 1:
                             sender(chat_id, f"[id{to_user_id}|Пользователь] был успешно разблокирован.", mid + 95)
                             Data(db).del_ban(str(to_user_id))
                         else:
@@ -237,10 +238,35 @@ for event in lp.listen():
                 elif cmd == 'getban':
                     to_user_id = Get(event.object.message, vk_session).to_user_id()
                     if normal_id(to_user_id) == 1:
-                        if Data(db).get_ban(to_user_id) != 0:
-                            msg = f""
+                        dtb = sqlite3.connect('global_base.db')
+                        c = dtb.cursor()
+                        user_ids_no = c.execute(f"SELECT * FROM ban WHERE ban_type = 'No'").fetchall()
+                        user_ids_pl = c.execute(f"SELECT * FROM ban WHERE ban_type = 'Pl'").fetchall()
+                        dtb.commit()
+                        dtb.close()
+                        no_msg = 'Отсутствует'
+                        pl_msg = 'Отсутствует'
+                        for i in user_ids_no:
+                            if int(i[0]) == int(to_user_id):
+                                ban_full_date = time.localtime(int(i[2]))
+                                ban_date = time.strftime("%d.%m.%Y %H:%M:%S", ban_full_date)
+                                no_msg = f"\n[id{i[1]}|Модератор] | {i[3]} | {ban_date}"
+                        for i in user_ids_pl:
+                            if int(i[0]) == int(to_user_id):
+                                ban_full_date = time.localtime(int(i[2]))
+                                ban_date = time.strftime("%d.%m.%Y %H:%M:%S", ban_full_date)
+                                no_msg = f"\n[id{i[1]}|Модератор] | {i[3]} | {ban_date}"
+                        msg = f'Информация о блокировках [id{to_user_id}|пользователя]:\n\n' \
+                              f'Глобальная блокировка в беседах игроков: {pl_msg}.\n' \
+                              f'Глобальная блокировка во всех беседах: {no_msg}.\n'
+                        if Data(db).get_ban(to_user_id)[2] == 1:
+                            slovar = Data(db).full_get_ban(to_user_id)[2]
+                            ban_full_date = time.localtime(int(slovar['ban_date']))
+                            ban_date = time.strftime("%d.%m.%Y %H:%M:%S", ban_full_date)
+                            msg += f"\nБлокировка в данной беседе:\n" \
+                                   f"[id{slovar['admin_id']}|Модератор] | {slovar['ban_reason']} | {ban_date}."
                         else:
-                            msg = f""
+                            msg += f"\nБлокировка в данной беседе: Отсутствует."
                         sender(chat_id, msg, mid + 95)
                     else:
                         sender(chat_id, "Ссылка указана некорректно.", mid + 95)
@@ -403,7 +429,6 @@ for event in lp.listen():
                                 members.append(i['member_id'])
                             conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))['items']
                             admin_ids = (conservations[0]['chat_settings'])['admin_ids']
-                            print(members, admin_ids)
                             if int(to_user_id) in members:
                                 Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
                                     'items']
@@ -563,19 +588,42 @@ for event in lp.listen():
                         sender(chat_id, "Доступные направления бесед: all, gos, opg.", mid + 95)
 
                 elif cmd == 'sunbanpl':
-                    pass
-
-                elif cmd == 'sbanpl':
-                    pass
-
-                elif cmd == 'sunban':
-                    pass
-
-                elif cmd == 'sban':
                     to_user_id = Get(event.object.message, vk_session).to_user_id()
                     if normal_id(to_user_id) == 1:
+                        dtb = sqlite3.connect('global_base.db')
+                        c = dtb.cursor()
+                        user_ids_pl = c.execute(f"SELECT user_id FROM ban WHERE ban_type = 'Pl'").fetchall()
+                        dtb.commit()
+                        dtb.close()
+                        g_ban_trigger = 0
+                        for i in user_ids_pl:
+                            if int(i[0]) == int(to_user_id):
+                                g_ban_trigger = 1
+                        if g_ban_trigger == 1:
+                            dtb = sqlite3.connect('global_base.db')
+                            c = dtb.cursor()
+                            c.execute(f"DELETE FROM ban WHERE user_id = '{to_user_id}'")
+                            dtb.commit()
+                            dtb.close()
+                            s_sender(chat_id, f"[id{to_user_id}|Пользователь] успешно разблокирован!")
+                        else:
+                            s_sender(chat_id, f"[id{to_user_id}|Пользователь] не имеет данного типа блокировки!")
+                    else:
+                        sender(chat_id, "Ссылка указана некорректно.", mid)
+
+                elif cmd == 'sbanpl':
+                    argument = Get(event.object.message, vk_session).single_argument()
+                    to_user_id = Get(event.object.message, vk_session).to_user_id()
+                    if normal_id(to_user_id) == 1 and normal_argument(argument) == 1:
                         db = sqlite3.connect('global_base.db')
                         c = db.cursor()
+                        c.execute(f"""INSERT INTO ban VALUES (
+                        '{to_user_id}',
+                        '{from_user_id}',
+                        '{str(datetime.datetime.now().timestamp()).split('.')[0]}',
+                        '{argument}',
+                        'Pl'
+                        )""")
                         chat_ids = (c.execute(f"SELECT chat_id FROM chat").fetchall())
                         db.commit()
                         db.close()
@@ -589,29 +637,97 @@ for event in lp.listen():
                                 members.append(i['member_id'])
                             conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))['items']
                             admin_ids = (conservations[0]['chat_settings'])['admin_ids']
-                            print(members, admin_ids)
                             if int(to_user_id) in members:
                                 Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
                                     'items']
                                 for_chat_name = (Conservations[0]['chat_settings'])['title']
                                 if not (to_user_id in admin_ids):
-                                    Data(f"Data{f_chat_id}.db").add_ban(to_user_id, 'terst', admin_ids)
                                     vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
                                     msg = f"[id{from_user_id}|Администратор] забанил " \
-                                          f"[id{to_user_id}|пользователя] во всех беседах сервера."
+                                          f"[id{to_user_id}|пользователя] во всех беседах сервера." \
+                                          f"\n Причина: {argument}."
                                     s_sender(f_chat_id, msg)
                                     chats += f'{for_chat_name} | {f_chat_id}\n'
                                 else:
                                     do_not += f"{for_chat_name} | {f_chat_id}\n"
                         if len(chats) > 0:
-                            sender(chat_id, "Пользователь забанен успешно! Статистика выгружена вам в ЛС.", mid + 95)
-                            l_sender(from_user_id, f"Пользователь был забанен из чатов:\n\n{chats}")
+                            sender(chat_id, "Пользователь забанен успешно! Статистика выгружена вам в ЛС.", mid)
+                            l_sender(from_user_id, f"Пользователь был исключён из чатов:\n\n{chats}")
                         if len(do_not) > 0:
                             l_sender(from_user_id, f"Не удалось исключить из чатов:\n\n{do_not}")
                     else:
-                        sender(chat_id, "Ссылка указана некорректно.", mid + 95)
-                    pass
-                # добавить проверку на то чтобы, кикало его если добавляют человека, и добавить нормальную бд
+                        sender(chat_id, "Ссылка или аргумент указаны некорректно.", mid)
+
+                elif cmd == 'sunban':
+                    to_user_id = Get(event.object.message, vk_session).to_user_id()
+                    if normal_id(to_user_id) == 1:
+                        dtb = sqlite3.connect('global_base.db')
+                        c = dtb.cursor()
+                        user_ids_no = c.execute(f"SELECT user_id FROM ban WHERE ban_type = 'No'").fetchall()
+                        dtb.commit()
+                        dtb.close()
+                        g_ban_trigger = 0
+                        for i in user_ids_no:
+                            if int(i[0]) == int(to_user_id):
+                                g_ban_trigger = 1
+                        if g_ban_trigger == 1:
+                            dtb = sqlite3.connect('global_base.db')
+                            c = dtb.cursor()
+                            c.execute(f"DELETE FROM ban WHERE user_id = '{to_user_id}'")
+                            dtb.commit()
+                            dtb.close()
+                            s_sender(chat_id, f"[id{to_user_id}|Пользователь] успешно разблокирован!")
+                        else:
+                            s_sender(chat_id, f"[id{to_user_id}|Пользователь] не имеет данного типа блокировки!")
+                    else:
+                        sender(chat_id, "Ссылка указана некорректно.", mid)
+
+                elif cmd == 'sban':
+                    argument = Get(event.object.message, vk_session).single_argument()
+                    to_user_id = Get(event.object.message, vk_session).to_user_id()
+                    if normal_id(to_user_id) == 1 and normal_argument(argument) == 1:
+                        db = sqlite3.connect('global_base.db')
+                        c = db.cursor()
+                        c.execute(f"""INSERT INTO ban VALUES (
+                        '{to_user_id}',
+                        '{from_user_id}',
+                        '{str(datetime.datetime.now().timestamp()).split('.')[0]}',
+                        '{argument}',
+                        'No'
+                        )""")
+                        chat_ids = (c.execute(f"SELECT chat_id FROM chat").fetchall())
+                        db.commit()
+                        db.close()
+                        chats = ''
+                        do_not = ''
+                        for for_chat_id in chat_ids:
+                            f_chat_id = for_chat_id[0]
+                            members_array = vk.messages.getConversationMembers(peer_id=2000000000 + f_chat_id)['items']
+                            members = []
+                            for i in members_array:
+                                members.append(i['member_id'])
+                            conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))['items']
+                            admin_ids = (conservations[0]['chat_settings'])['admin_ids']
+                            if int(to_user_id) in members:
+                                Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
+                                    'items']
+                                for_chat_name = (Conservations[0]['chat_settings'])['title']
+                                if not (to_user_id in admin_ids):
+                                    vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
+                                    msg = f"[id{from_user_id}|Администратор] забанил " \
+                                          f"[id{to_user_id}|пользователя] во всех беседах сервера." \
+                                          f"\n Причина: {argument}."
+                                    s_sender(f_chat_id, msg)
+                                    chats += f'{for_chat_name} | {f_chat_id}\n'
+                                else:
+                                    do_not += f"{for_chat_name} | {f_chat_id}\n"
+                        sender(chat_id, "Пользователь забанен успешно! Статистика выгружена вам в ЛС.", mid + 95)
+                        if len(chats) > 0:
+                            l_sender(from_user_id, f"Пользователь был исключён из чатов:\n\n{chats}")
+                        if len(do_not) > 0:
+                            l_sender(from_user_id, f"Не удалось исключить из чатов:\n\n{do_not}")
+                    else:
+                        sender(chat_id, "Ссылка или аргумент указаны некорректно.", mid)
 
                 elif cmd == 'sadmin' or cmd == 'садмин':
                     to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -661,13 +777,29 @@ for event in lp.listen():
             action_user_id = -100
 
         if chat_event == 'chat_invite_user':
-            if Data(db).get_ban(action_user_id)[2] == 0:
+            dtb = sqlite3.connect('global_base.db')
+            c = dtb.cursor()
+            user_ids_no = (c.execute(f"SELECT user_id FROM ban WHERE ban_type = 'No'").fetchall())
+            user_ids_pl = (c.execute(f"SELECT user_id FROM ban WHERE ban_type = 'Pl'").fetchall())
+            this_chat_type = (c.execute(f"SELECT chat_type FROM chat WHERE chat_id = '{chat_id}'").fetchall())
+            dtb.commit()
+            dtb.close()
+            g_ban_trigger = 0
+            if this_chat_type != 'ms':
+                for i in user_ids_no:
+                    if int(i[0]) == int(action_user_id):
+                        g_ban_trigger = 1
+            else:
+                for i in user_ids_pl:
+                    if int(i[0]) == int(action_user_id):
+                        g_ban_trigger = 1
+            if Data(db).get_ban(action_user_id)[2] == 0 and g_ban_trigger == 0:
                 mess = f"Приветствую @id{action_user_id}, тут мы тестируем нашего бота.\n\n"
                 mess = mess + "Если нашли какие-либо недоработки или баги передавайте их в личные сообщения сообщества!"
                 s_sender(chat_id, mess)
                 Data(db).new_user(action_user_id)
             else:
-                sender(chat_id, f"[id{action_user_id}|Пользователь] заблокирован в этом чате!", mid + 95)
+                s_sender(chat_id, f"[id{action_user_id}|Пользователь] заблокирован в этом чате!")
                 vk.messages.removeChatUser(chat_id=chat_id, user_id=action_user_id)
 
         if chat_event == 'chat_kick_user':
