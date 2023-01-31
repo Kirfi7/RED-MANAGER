@@ -72,7 +72,6 @@ for event in lp.listen():
                     to_user_id = Get(event.object.message, vk_session).to_user_id()
                     db = f"data{chat_id}.db"
                     if to_user_id != 'Error' and to_user_id != 'None' and not ('-' in str(to_user_id)):
-                        msg = f"Роль [id{to_user_id}|пользователя] в беседе: {role(Data(db).get_role(to_user_id))}"
                         sender(chat_id, f"Оригинальная ссылка на пользователя: https://vk.com/id{to_user_id}")
                     else:
                         sender(chat_id, "Ссылка указана некорректно.")

@@ -253,10 +253,6 @@ class Data:
         msg = msg + f"\nАктивных предупреждений: {count}."
         return self.conn.commit(), self.conn.close(), msg
 
-    # def user_mute(self, to_user_id, minutes):
-    #    self.c.execute(f"UPDATE ")
-    #    return self.conn.commit(), self.conn.close()
-
     def is_muted(self, to_user_id):
         result = self.c.execute(f"SELECT is_mute FROM users WHERE user_id = '{to_user_id}'")
         x = str(result.fetchone())
@@ -270,19 +266,9 @@ class Data:
             return self.conn.commit(), self.conn.close(), 0
 
     def staff(self):
-        r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles >= '5'")
-        result = r.fetchall()
-        msg = 'Руководители Сервера:'
-        msg_5 = msg + '\n'
-        for i in range(len(result)):
-            for_id = result[i][0]
-            fet = self.c.execute(f"SELECT nick_name FROM users WHERE user_id = {for_id}")
-            for_nick = fet.fetchone()[0]
-            if for_nick == 'Нет' or for_nick == 'None' or for_nick == 'Error' or for_nick == '':
-                for_nick = get_name(for_id)
-            if not('-' in for_id):
-                msg_5 = msg_5 + f'— [id{for_id}|{for_nick}]\n'
-
+        msg_5 = 'Главный Администратор:\n— [id468509613|Kirfi_Marciano]' \
+              '\n\nЗам. Главного Администратора:\n— [id327113505|Ricardo_Vendetta]\n— [id16715256|Prokhor_Adzinets]' \
+                '\n\nКураторы Администрации:\n— [id534422651|Mikhail_Pearson]\n— [id137480835|Serega_Forestry]\n'
         r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '4'")
         result = r.fetchall()
         msg_4 = msg_5 + '\nСтаршие Администраторы:\n'
