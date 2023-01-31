@@ -572,45 +572,46 @@ for event in lp.listen():
                     pass
 
                 elif cmd == 'sban':
-                    # to_user_id = Get(event.object.message, vk_session).to_user_id()
-                    # if normal_id(to_user_id) == 1:
-                    #     db = sqlite3.connect('global_base.db')
-                    #     c = db.cursor()
-                    #     chat_ids = (c.execute(f"SELECT chat_id FROM chat").fetchall())
-                    #     db.commit()
-                    #     db.close()
-                    #     chats = ''
-                    #     do_not = ''
-                    #     for for_chat_id in chat_ids:
-                    #         f_chat_id = for_chat_id[0]
-                    #         members_array = vk.messages.getConversationMembers(peer_id=2000000000 + f_chat_id)['items']
-                    #         members = []
-                    #         for i in members_array:
-                    #             members.append(i['member_id'])
-                    #         conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))['items']
-                    #         admin_ids = (conservations[0]['chat_settings'])['admin_ids']
-                    #         print(members, admin_ids)
-                    #         if int(to_user_id) in members:
-                    #             Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
-                    #                 'items']
-                    #             for_chat_name = (Conservations[0]['chat_settings'])['title']
-                    #             if not (to_user_id in admin_ids):
-                    #                 Data(f"Data{f_chat_id}.db").add_ban(to_user_id, argument(message_text, fo), admin_ids)
-                    #                 vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
-                    #                 msg = f"[id{from_user_id}|Администратор] забанил " \
-                    #                       f"[id{to_user_id}|пользователя] во всех беседах сервера."
-                    #                 s_sender(f_chat_id, msg)
-                    #                 chats += f'{for_chat_name} | {f_chat_id}\n'
-                    #             else:
-                    #                 do_not += f"{for_chat_name} | {f_chat_id}\n"
-                    #     if len(chats) > 0:
-                    #         sender(chat_id, "Пользователь забанен успешно! Статистика выгружена вам в ЛС.", mid + 95)
-                    #         l_sender(from_user_id, f"Пользователь был забанен из чатов:\n\n{chats}")
-                    #     if len(do_not) > 0:
-                    #         l_sender(from_user_id, f"Не удалось исключить из чатов:\n\n{do_not}")
-                    # else:
-                    #     sender(chat_id, "Ссылка указана некорректно.", mid + 95)
+                    to_user_id = Get(event.object.message, vk_session).to_user_id()
+                    if normal_id(to_user_id) == 1:
+                        db = sqlite3.connect('global_base.db')
+                        c = db.cursor()
+                        chat_ids = (c.execute(f"SELECT chat_id FROM chat").fetchall())
+                        db.commit()
+                        db.close()
+                        chats = ''
+                        do_not = ''
+                        for for_chat_id in chat_ids:
+                            f_chat_id = for_chat_id[0]
+                            members_array = vk.messages.getConversationMembers(peer_id=2000000000 + f_chat_id)['items']
+                            members = []
+                            for i in members_array:
+                                members.append(i['member_id'])
+                            conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))['items']
+                            admin_ids = (conservations[0]['chat_settings'])['admin_ids']
+                            print(members, admin_ids)
+                            if int(to_user_id) in members:
+                                Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
+                                    'items']
+                                for_chat_name = (Conservations[0]['chat_settings'])['title']
+                                if not (to_user_id in admin_ids):
+                                    Data(f"Data{f_chat_id}.db").add_ban(to_user_id, 'terst', admin_ids)
+                                    vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
+                                    msg = f"[id{from_user_id}|Администратор] забанил " \
+                                          f"[id{to_user_id}|пользователя] во всех беседах сервера."
+                                    s_sender(f_chat_id, msg)
+                                    chats += f'{for_chat_name} | {f_chat_id}\n'
+                                else:
+                                    do_not += f"{for_chat_name} | {f_chat_id}\n"
+                        if len(chats) > 0:
+                            sender(chat_id, "Пользователь забанен успешно! Статистика выгружена вам в ЛС.", mid + 95)
+                            l_sender(from_user_id, f"Пользователь был забанен из чатов:\n\n{chats}")
+                        if len(do_not) > 0:
+                            l_sender(from_user_id, f"Не удалось исключить из чатов:\n\n{do_not}")
+                    else:
+                        sender(chat_id, "Ссылка указана некорректно.", mid + 95)
                     pass
+                # добавить проверку на то чтобы, кикало его если добавляют человека, и добавить нормальную бд
 
                 elif cmd == 'sadmin' or cmd == 'садмин':
                     to_user_id = Get(event.object.message, vk_session).to_user_id()
