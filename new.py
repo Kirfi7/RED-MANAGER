@@ -60,13 +60,14 @@ for event in lp.listen():
         chat_id = event.chat_id
         db = f"data{chat_id}.db"
         message_text = event.object.message['text']
+        from_user_id = event.object.message['from_id']
 
         if message_text[0] in prefix:
 
             cmd = (message_text.split()[0])[1:]
             if cmd in users_commands:
                 if cmd == 'help':
-                    pass
+                    sender(chat_id, Data(db).help(Data(db).user_role(from_user_id)[2]))
 
                 elif cmd == 'id' or cmd == 'getid':
                     to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -91,7 +92,6 @@ for event in lp.listen():
 
             elif cmd in moder_commands:
 
-                from_user_id = event.object.message['from_id']
                 lvl = Data(db).user_role(from_user_id)[2]
                 if lvl < 1:
                     sender(chat_id, "Недостаточно прав!")
@@ -193,7 +193,6 @@ for event in lp.listen():
 
             elif cmd in sen_moder_commands:
 
-                from_user_id = event.object.message['from_id']
                 lvl = Data(db).user_role(from_user_id)[2]
                 if lvl < 2:
                     sender(chat_id, "Недостаточно прав!")
@@ -308,7 +307,6 @@ for event in lp.listen():
 
             elif cmd in admin_commands:
 
-                from_user_id = event.object.message['from_id']
                 lvl = Data(db).user_role(from_user_id)[2]
                 if lvl < 3:
                     sender(chat_id, "Недостаточно прав!")
@@ -445,7 +443,6 @@ for event in lp.listen():
 
             elif cmd in sen_admin_commands:
 
-                from_user_id = event.object.message['from_id']
                 lvl = Data(db).user_role(from_user_id)[2]
                 if lvl < 4:
                     sender(chat_id, "Недостаточно прав!")
@@ -469,7 +466,6 @@ for event in lp.listen():
 
             elif cmd in special_commands:
 
-                from_user_id = event.object.message['from_id']
                 lvl = Data(db).user_role(from_user_id)[2]
                 if lvl < 5:
                     sender(chat_id, "Недостаточно прав!")
@@ -733,7 +729,7 @@ for event in lp.listen():
                         sender(chat_id, "Ссылка указана некорректно.")
 
             elif cmd in dev_commands:
-                from_user_id = event.object.message['from_id']
+
                 if str(from_user_id) in DEV_IDS:
 
                     if cmd == 'dev':

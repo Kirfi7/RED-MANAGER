@@ -360,3 +360,6 @@ class Data:
         result = self.c.execute(f"SELECT * FROM ban WHERE user_id = '{to_user_id}'").fetchall()[0]
         slovar = {'admin_id': f'{result[1]}', 'ban_reason': f'{result[3]}', 'ban_date': f'{result[2]}'}
         return self.conn.commit(), self.conn.close(), slovar
+
+    def help(self, lvl):
+        pass
