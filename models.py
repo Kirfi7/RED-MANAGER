@@ -126,10 +126,10 @@ class Data:
 
     def get_role(self, to_user_id):
         result = self.c.execute(f"SELECT admin_roles FROM users WHERE user_id = '{to_user_id}'").fetchone()
-        if len(result) > 0:
-            from_level = result[0]
-        else:
+        if result is None:
             from_level = 0
+        else:
+            from_level = result[0]
         return self.conn.commit(), self.conn.close(), int(from_level)
 
     def new_user(self, to_user_id):
