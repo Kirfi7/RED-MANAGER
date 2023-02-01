@@ -4,7 +4,7 @@ DEV_IDS = ['534422651', '468509613']
 
 prefix = ['/', '!', '+']
 
-users_commands = ['help', 'id', 'getid', 'stats', 'стата']
+users_commands = ['help', 'id', 'getid', 'stats', 'стата', 'жив']
 
 moder_commands = ['warn', 'варн', 'unwarn', 'getacc', 'кик', 'kick', 'removenick', 'snick', 'gnick', 'setnick', 'getnick', 'staff', 'nlist', 'rnick']
 
