@@ -482,11 +482,11 @@ try:
                     elif cmd == 'снят':
                         to_user_id = Get(event.object.message, vk_session).to_user_id()
                         if normal_id(to_user_id) == 1:
-                            db = sqlite3.connect('global_base.db')
-                            c = db.cursor()
+                            dbc = sqlite3.connect('global_base.db')
+                            c = dbc.cursor()
                             chat_ids = c.execute(f"SELECT chat_id FROM chat").fetchall()
-                            db.commit()
-                            db.close()
+                            dbc.commit()
+                            dbc.close()
                             chats = ''
                             for for_chat_id in chat_ids:
                                 f_chat_id = for_chat_id[0]

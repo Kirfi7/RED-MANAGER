@@ -3,6 +3,7 @@ import datetime
 import vk_api
 from config import TOKEN
 
+
 vk_session = vk_api.VkApi(token=TOKEN)
 
 
