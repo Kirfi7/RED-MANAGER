@@ -11,6 +11,9 @@ vk_session = vk_api.VkApi(token=TOKEN)
 lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
+bot_ver = 2.2
+# Проставлять при аптейте комита
+
 
 def sender(from_chat_id, text):
     vk.messages.send(chat_id=from_chat_id, message=text, random_id=0)
@@ -53,6 +56,7 @@ def role(level):
     else:
         return "Пользователь"
 
+
 try:
     for event in lp.listen():
 
@@ -66,9 +70,36 @@ try:
             if message_text[0] in prefix:
 
                 cmd = (message_text.split()[0])[1:]
-                if cmd in users_commands:
+                roles_access = 1
+
+                if cmd in to_commands:
+                    to_user_id = Get(event.object.message, vk_session).to_user_id()
+
+                    if normal_id(to_user_id) == 1:
+                        from_lvl = int(Data(db).user_role(from_user_id)[2])
+                        to_lvl = int(Data(db).user_role(to_user_id)[2])
+                        if from_lvl <= to_lvl and (not (from_user_id in DEV_IDS)):
+                            roles_access = 0
+                    else:
+                        sender(chat_id, "Ссылка указана некорректно.")
+
+                if cmd in users_commands and roles_access == 1:
                     if cmd == 'help':
-                        sender(chat_id, Data(db).help(Data(db).user_role(from_user_id)[2]))
+                        lvl = int(Data(db).user_role(from_user_id)[2])
+                        if lvl == 0:
+                            sender(chat_id, help_com_0)
+                        elif lvl == 1:
+                            sender(chat_id, help_com_1)
+                        elif lvl == 2:
+                            sender(chat_id, help_com_2)
+                        elif lvl == 3:
+                            sender(chat_id, help_com_3)
+                        elif lvl == 4:
+                            sender(chat_id, help_com_4)
+                        elif lvl > 4:
+                            sender(chat_id, help_com_5)
+                        else:
+                            sender(chat_id, "Произошла непредвиденная ошибка!")
 
                     elif cmd == 'id' or cmd == 'getid':
                         to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -80,13 +111,12 @@ try:
 
                     elif cmd == 'жив':
                         to_user_id = Get(event.object.message, vk_session).to_user_id()
-                        sender(chat_id, "Бот жив!\nВерсия бота: 2.1")
+                        sender(chat_id, f"Бот работает!\nВерсия бота: {bot_ver}.")
 
                     elif cmd == 'stats' or cmd == 'стата':
                         to_user_id = Get(event.object.message, vk_session).to_user_id()
                         db = f"data{chat_id}.db"
-                        if to_user_id != 'Error' and to_user_id != 'None' and not ('-' in str(to_user_id)):
-                            muted = 'Есть' if Data(db).is_muted(to_user_id)[2] == 1 else 'Нет'
+                        if normal_id(to_user_id) == 1:
                             msg = f"Общая информация про [id{to_user_id}|{get_name(to_user_id)}]:\n" \
                                   f"Роль: {role(Data(db).get_role(to_user_id))}\n" \
                                   f"Никнейм: {Data(db).get_nick(to_user_id)[2]}\n" \
@@ -95,7 +125,7 @@ try:
                         else:
                             sender(chat_id, "Ссылка указана некорректно.")
 
-                elif cmd in moder_commands:
+                elif cmd in moder_commands and roles_access == 1:
 
                     lvl = Data(db).user_role(from_user_id)[2]
                     if lvl < 1:
@@ -110,9 +140,16 @@ try:
                             msg = f'[id{from_user_id}|{moder_nick}] выдал предупреждение [id{to_user_id}|пользователю].'
                             msg = msg + f"\nПричина: {argument} | Количество: {result[2]}/3."
                             if result[3] == 1:
-                                Data(db).user_kick(to_user_id)
-                                vk.messages.removeChatUser(chat_id=chat_id, user_id=to_user_id)
-                                sender(chat_id, f'[id{to_user_id}|Пользователь] заблокирован, получено 3/3 предупреждения.')
+                                try:
+                                    Data(db).user_kick(to_user_id)
+                                except:
+                                    pass
+                                try:
+                                    vk.messages.removeChatUser(chat_id=chat_id, user_id=to_user_id)
+                                    sender(chat_id,
+                                           f'[id{to_user_id}|Пользователь] заблокирован, получено 3/3 предупреждения.')
+                                except:
+                                    pass
                             else:
                                 sender(chat_id, msg)
                         else:
@@ -147,7 +184,8 @@ try:
                         to_user_id = Get(event.object.message, vk_session).to_user_id()
                         if normal_id(to_user_id) == 1:
                             msg = Data(db).get_nick(to_user_id)[2]
-                            if msg == '' or msg == 'Error' or msg == 'Нет' or msg == 'None' or msg == get_name(to_user_id):
+                            if msg == '' or msg == 'Error' or msg == 'Нет' or msg == 'None' or msg == get_name(
+                                    to_user_id):
                                 msg = f"У [id{to_user_id}|пользователя] не установлен никнейм."
                                 sender(chat_id, msg)
                             else:
@@ -155,23 +193,17 @@ try:
                         else:
                             sender(chat_id, "Ссылка указана некорректно.")
 
-                    elif cmd == 'nlist':
+                    elif cmd == 'nlist' or cmd == 'ники' or cmd == 'nicklist':
                         sender(chat_id, Data(db).nick_list()[2])
 
                     elif cmd == 'kick' or cmd == 'кик':
                         to_user_id = Get(event.object.message, vk_session).to_user_id()
-                        members = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)['items']
-                        all_users = []
-                        conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + chat_id))['items']
-                        admin_ids = (conservations[0]['chat_settings'])['admin_ids']
-                        for member in members:
-                            all_users.append(member['member_id'])
                         if normal_id(to_user_id) == 1:
-                            if int(to_user_id) in all_users and not (int(to_user_id) in admin_ids):
+                            try:
                                 Data(db).user_kick(to_user_id)
                                 vk.messages.removeChatUser(chat_id=chat_id, user_id=to_user_id)
                                 sender(chat_id, f"[id{to_user_id}|Пользователь] исключён из чата.")
-                            else:
+                            except:
                                 sender(chat_id, "Не могу исключить данного пользователя.")
                         else:
                             sender(chat_id, "Ссылка указана некорректно.")
@@ -196,7 +228,7 @@ try:
                         else:
                             sender(chat_id, "Ссылка указана некорректно.")
 
-                elif cmd in sen_moder_commands:
+                elif cmd in sen_moder_commands and roles_access == 1:
 
                     lvl = Data(db).user_role(from_user_id)[2]
                     if lvl < 2:
@@ -207,14 +239,15 @@ try:
                         argument = Get(event.object.message, vk_session).single_argument()
                         if normal_argument(argument) == 1 and normal_id(to_user_id) == 1:
                             Data(db).add_ban(to_user_id, argument, from_user_id)
-                            members = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)['items']
-                            all_users = []
                             moder_nick = Data(db).get_nick(from_user_id)[2]
-                            for member in members:
-                                all_users.append(int(member['member_id']))
-                            if int(to_user_id) in all_users:
-                                Data(db).user_kick(to_user_id)
+                            try:
                                 vk.messages.removeChatUser(chat_id=chat_id, user_id=to_user_id)
+                            except:
+                                pass
+                            try:
+                                Data(db).user_kick(to_user_id)
+                            except:
+                                pass
                             msg = f"[id{from_user_id}|{moder_nick}] заблокировал [id{to_user_id}|пользователя]"
                             msg += f"\nПричина: {argument}."
                             sender(chat_id, msg)
@@ -268,7 +301,6 @@ try:
                         else:
                             sender(chat_id, "Ссылка указана некорректно.")
 
-
                     elif cmd == 'getwarn' or cmd == 'warnlist':
                         to_user_id = Get(event.object.message, vk_session).to_user_id()
                         if normal_id(to_user_id) == 1:
@@ -311,7 +343,7 @@ try:
                         else:
                             sender(chat_id, "Аргумент указан некорректно.")
 
-                elif cmd in admin_commands:
+                elif cmd in admin_commands and roles_access == 1:
 
                     lvl = Data(db).user_role(from_user_id)[2]
                     if lvl < 3:
@@ -332,7 +364,8 @@ try:
                         if normal_argument(argument) == 1:
                             db = sqlite3.connect('global_base.db')
                             c = db.cursor()
-                            chat_ids = (c.execute(f"SELECT chat_id FROM chat WHERE chat_type = 'ss'").fetchall())
+                            chat_ids = (c.execute(
+                                f"SELECT chat_id FROM chat WHERE chat_type = 'ss' OR chat_type = 'all'").fetchall())
                             db.commit()
                             db.close()
                             chats = ''
@@ -350,7 +383,8 @@ try:
                                     'items']
                                 for_chat_name = (Conservations[0]['chat_settings'])['title']
                                 chats += f'{for_chat_name} | {for_chat_id}\n'
-                            l_sender(from_user_id, f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
+                            l_sender(from_user_id,
+                                     f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
                         else:
                             sender(chat_id, 'Причина вызова указана некорректно.')
 
@@ -359,7 +393,8 @@ try:
                         if normal_argument(argument) == 1:
                             db = sqlite3.connect('global_base.db')
                             c = db.cursor()
-                            chat_ids = (c.execute(f"SELECT chat_id FROM chat WHERE chat_type = 'ms'").fetchall())
+                            chat_ids = (c.execute(
+                                f"SELECT chat_id FROM chat WHERE chat_type = 'ms' OR chat_type = 'all'").fetchall())
                             db.commit()
                             db.close()
                             chats = ''
@@ -377,7 +412,8 @@ try:
                                     'items']
                                 for_chat_name = (Conservations[0]['chat_settings'])['title']
                                 chats += f'{for_chat_name} | {for_chat_id}\n'
-                            l_sender(from_user_id, f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
+                            l_sender(from_user_id,
+                                     f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
                         else:
                             sender(chat_id, 'Причина вызова указана некорректно.')
 
@@ -386,7 +422,8 @@ try:
                         if normal_argument(argument) == 1:
                             db = sqlite3.connect('global_base.db')
                             c = db.cursor()
-                            chat_ids = (c.execute(f"SELECT chat_id FROM chat WHERE chat_type = 'bw'").fetchall())
+                            chat_ids = (c.execute(
+                                f"SELECT chat_id FROM chat WHERE chat_type = 'bw' OR chat_type = 'all'").fetchall())
                             db.commit()
                             db.close()
                             chats = ''
@@ -404,50 +441,12 @@ try:
                                     'items']
                                 for_chat_name = (Conservations[0]['chat_settings'])['title']
                                 chats += f'{for_chat_name} | {for_chat_id}\n'
-                            l_sender(from_user_id, f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
+                            l_sender(from_user_id,
+                                     f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
                         else:
                             sender(chat_id, 'Причина вызова указана некорректно.')
 
-                    elif cmd == 'снят':
-                        to_user_id = Get(event.object.message, vk_session).to_user_id()
-                        if normal_id(to_user_id) == 1:
-                            db = sqlite3.connect('global_base.db')
-                            c = db.cursor()
-                            chat_ids = (c.execute(f"SELECT chat_id FROM chat").fetchall())
-                            db.commit()
-                            db.close()
-                            chats = ''
-                            do_not = ''
-                            for for_chat_id in chat_ids:
-                                f_chat_id = for_chat_id[0]
-                                members_array = vk.messages.getConversationMembers(peer_id=2000000000 + f_chat_id)['items']
-                                members = []
-                                for i in members_array:
-                                    members.append(i['member_id'])
-                                conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))['items']
-                                admin_ids = (conservations[0]['chat_settings'])['admin_ids']
-                                if int(to_user_id) in members:
-                                    Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
-                                        'items']
-                                    for_chat_name = (Conservations[0]['chat_settings'])['title']
-                                    if not (to_user_id in admin_ids):
-                                        Data(f"Data{f_chat_id}.db").user_kick(to_user_id)
-                                        vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
-                                        msg = f"[id{from_user_id}|Администратор] исключил " \
-                                              f"[id{to_user_id}|пользователя] во всех беседах сервера."
-                                        sender(f_chat_id, msg)
-                                        chats += f'{for_chat_name} | {f_chat_id}\n'
-                                    else:
-                                        do_not += f"{for_chat_name} | {f_chat_id}\n"
-                            if len(chats) > 0:
-                                sender(chat_id, "Пользователь исключён успешно! Статистика выгружена вам в ЛС.")
-                                l_sender(from_user_id, f"Пользователь был исключён из чатов:\n\n{chats}")
-                            if len(do_not) > 0:
-                                l_sender(from_user_id, f"Не удалось исключить из чатов:\n\n{do_not}")
-                        else:
-                            sender(chat_id, "Ссылка указана некорректно.")
-
-                elif cmd in sen_admin_commands:
+                elif cmd in sen_admin_commands and roles_access == 1:
 
                     lvl = Data(db).user_role(from_user_id)[2]
                     if lvl < 4:
@@ -470,11 +469,52 @@ try:
                         else:
                             sender(chat_id, "Аргумент указан некорректно.")
 
-                elif cmd in special_commands:
+                elif cmd in special_commands and roles_access == 1:
 
                     lvl = Data(db).user_role(from_user_id)[2]
                     if lvl < 5:
                         sender(chat_id, "Недостаточно прав!")
+
+                    elif cmd == 'снят':
+                        to_user_id = Get(event.object.message, vk_session).to_user_id()
+                        if normal_id(to_user_id) == 1:
+                            db = sqlite3.connect('global_base.db')
+                            c = db.cursor()
+                            chat_ids = (c.execute(f"SELECT chat_id FROM chat").fetchall())
+                            db.commit()
+                            db.close()
+                            chats = ''
+                            do_not = ''
+                            for for_chat_id in chat_ids:
+                                f_chat_id = for_chat_id[0]
+                                members_array = vk.messages.getConversationMembers(peer_id=2000000000 + f_chat_id)[
+                                    'items']
+                                members = []
+                                for i in members_array:
+                                    members.append(i['member_id'])
+                                conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
+                                    'items']
+                                admin_ids = (conservations[0]['chat_settings'])['admin_ids']
+                                if int(to_user_id) in members:
+                                    Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
+                                        'items']
+                                    for_chat_name = (Conservations[0]['chat_settings'])['title']
+                                    if not (to_user_id in admin_ids):
+                                        Data(f"Data{f_chat_id}.db").user_kick(to_user_id)
+                                        vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
+                                        msg = f"[id{from_user_id}|Администратор] исключил " \
+                                              f"[id{to_user_id}|пользователя] во всех беседах сервера."
+                                        sender(f_chat_id, msg)
+                                        chats += f'{for_chat_name} | {f_chat_id}\n'
+                                    else:
+                                        do_not += f"{for_chat_name} | {f_chat_id}\n"
+                            if len(chats) > 0:
+                                sender(chat_id, "Пользователь исключён успешно! Статистика выгружена вам в ЛС.")
+                                l_sender(from_user_id, f"Пользователь был исключён из чатов:\n\n{chats}")
+                            if len(do_not) > 0:
+                                l_sender(from_user_id, f"Не удалось исключить из чатов:\n\n{do_not}")
+                        else:
+                            sender(chat_id, "Ссылка указана некорректно.")
 
                     elif '/gzov' in message_text:
                         argument = Get(event.object.message, vk_session).single_argument()
@@ -499,7 +539,8 @@ try:
                                     'items']
                                 for_chat_name = (Conservations[0]['chat_settings'])['title']
                                 chats += f'{for_chat_name} | {for_chat_id}\n'
-                            l_sender(from_user_id, f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
+                            l_sender(from_user_id,
+                                     f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
                         else:
                             sender(chat_id, 'Причина вызова указана некорректно.')
 
@@ -508,7 +549,8 @@ try:
                         if normal_argument(argument) == 1:
                             db = sqlite3.connect('global_base.db')
                             c = db.cursor()
-                            chat_ids = (c.execute(f"SELECT chat_id FROM chat WHERE chat_type = 'adm' OR chat_type = 'all'").fetchall())
+                            chat_ids = (c.execute(
+                                f"SELECT chat_id FROM chat WHERE chat_type = 'adm' OR chat_type = 'all'").fetchall())
                             db.commit()
                             db.close()
                             chats = ''
@@ -526,7 +568,8 @@ try:
                                     'items']
                                 for_chat_name = (Conservations[0]['chat_settings'])['title']
                                 chats += f'{for_chat_name} | {for_chat_id}\n'
-                            l_sender(from_user_id, f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
+                            l_sender(from_user_id,
+                                     f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
                         else:
                             sender(chat_id, 'Причина вызова указана некорректно.')
 
@@ -535,7 +578,8 @@ try:
                         if normal_argument(argument) == 1:
                             db = sqlite3.connect('global_base.db')
                             c = db.cursor()
-                            chat_ids = (c.execute(f"SELECT chat_id FROM chat WHERE chat_type = 'ld' OR chat_type = 'all'").fetchall())
+                            chat_ids = (c.execute(
+                                f"SELECT chat_id FROM chat WHERE chat_type = 'ld' OR chat_type = 'all'").fetchall())
                             db.commit()
                             db.close()
                             chats = ''
@@ -553,13 +597,14 @@ try:
                                     'items']
                                 for_chat_name = (Conservations[0]['chat_settings'])['title']
                                 chats += f'{for_chat_name} | {for_chat_id}\n'
-                            l_sender(from_user_id, f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
+                            l_sender(from_user_id,
+                                     f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
                         else:
                             sender(chat_id, 'Причина вызова указана некорректно.')
 
                     elif cmd == 'type':
                         argument = Get(event.object.message, vk_session).single_argument()
-                        type_list = ['all', 'ms', 'ss', 'bw', 'adm', 'ld']
+                        type_list = ['all', 'ms', 'ss', 'bw', 'adm', 'ld', 'red', 'ka', 'kh']
                         if normal_argument(argument) == 1 and argument in type_list:
                             db = sqlite3.connect('global_base.db')
                             c = db.cursor()
@@ -568,11 +613,12 @@ try:
                             db.close()
                             sender(chat_id, f"Тип {argument} успешно установлен")
                         else:
-                            sender(chat_id, "Доступные типы бесед: all, ms, ss, bw, adm, ld.")
+                            sender(chat_id, "Доступные типы бесед: all, ms, ss, bw, adm, ld, red, ka, kh.")
 
                     elif cmd == 'line':
                         argument = Get(event.object.message, vk_session).single_argument()
-                        if normal_argument(argument) == 1 and (argument == 'gos' or argument == 'opg' or argument == 'all'):
+                        if normal_argument(argument) == 1 and (
+                                argument == 'gos' or argument == 'opg' or argument == 'all'):
                             db = sqlite3.connect('global_base.db')
                             c = db.cursor()
                             c.execute(f"UPDATE chat SET chat_line = '{argument}' WHERE chat_id = '{chat_id}'")
@@ -626,11 +672,13 @@ try:
                             do_not = ''
                             for for_chat_id in chat_ids:
                                 f_chat_id = for_chat_id[0]
-                                members_array = vk.messages.getConversationMembers(peer_id=2000000000 + f_chat_id)['items']
+                                members_array = vk.messages.getConversationMembers(peer_id=2000000000 + f_chat_id)[
+                                    'items']
                                 members = []
                                 for i in members_array:
                                     members.append(i['member_id'])
-                                conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))['items']
+                                conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
+                                    'items']
                                 admin_ids = (conservations[0]['chat_settings'])['admin_ids']
                                 if int(to_user_id) in members:
                                     Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
@@ -646,7 +694,7 @@ try:
                                     else:
                                         do_not += f"{for_chat_name} | {f_chat_id}\n"
                             if len(chats) > 0:
-                                sender(chat_id, "Пользователь забанен успешно! Статистика выгружена вам в ЛС.")
+                                sender(chat_id, f"[id{to_user_id}|Пользователь] забанен успешно\nПричина бана: {argument}\nСтатистика выгружена вам в ЛС")
                                 l_sender(from_user_id, f"Пользователь был исключён из чатов:\n\n{chats}")
                             if len(do_not) > 0:
                                 l_sender(from_user_id, f"Не удалось исключить из чатов:\n\n{do_not}")
@@ -697,11 +745,13 @@ try:
                             do_not = ''
                             for for_chat_id in chat_ids:
                                 f_chat_id = for_chat_id[0]
-                                members_array = vk.messages.getConversationMembers(peer_id=2000000000 + f_chat_id)['items']
+                                members_array = vk.messages.getConversationMembers(peer_id=2000000000 + f_chat_id)[
+                                    'items']
                                 members = []
                                 for i in members_array:
                                     members.append(i['member_id'])
-                                conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))['items']
+                                conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
+                                    'items']
                                 admin_ids = (conservations[0]['chat_settings'])['admin_ids']
                                 if int(to_user_id) in members:
                                     Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
@@ -716,7 +766,7 @@ try:
                                         chats += f'{for_chat_name} | {f_chat_id}\n'
                                     else:
                                         do_not += f"{for_chat_name} | {f_chat_id}\n"
-                            sender(chat_id, "Пользователь забанен успешно! Статистика выгружена вам в ЛС.")
+                            sender(chat_id, f"[id{to_user_id}|Пользователь] забанен успешно\nПричина бана: {argument}\nСтатистика выгружена вам в ЛС")
                             if len(chats) > 0:
                                 l_sender(from_user_id, f"Пользователь был исключён из чатов:\n\n{chats}")
                             if len(do_not) > 0:
@@ -734,7 +784,7 @@ try:
                         else:
                             sender(chat_id, "Ссылка указана некорректно.")
 
-                elif cmd in dev_commands:
+                elif cmd in dev_commands and roles_access == 1:
 
                     if str(from_user_id) in DEV_IDS:
 
@@ -750,13 +800,28 @@ try:
                             Data(db).start(members, chat_id)
                             sender(chat_id, "Бот успешно запущен!")
 
+                        elif cmd == 'chat':
+                            db = sqlite3.connect('global_base.db')
+                            c = db.cursor()
+                            res = c.execute(f"SELECT chat_type, chat_line WHERE chat_id = '{chat_id}'").fetchall()
+                            msg = str(res[0])[1:-2]
+                            db.commit()
+                            db.close()
+                            sender(chat_id, f"Локальный ID беседы:{chat_id}\nНастройки беседы: {msg}")
+
                         elif cmd == 'spec':
                             to_user_id = Get(event.object.message, vk_session).to_user_id()
-                            Data(db).set_role(to_user_id, 6)
+                            Data(db).set_role(to_user_id, 5)
+                            Data(db).set_role(from_user_id, 5)
                             sender(chat_id,
-                                   f"[id{from_user_id}|Вы] выдали права старшего администратора [id{to_user_id}|пользователю].")
+                                   f"Вы выдали права руководителя [id{to_user_id}|пользователю].")
                     else:
                         sender(chat_id, "Недостаточно прав!")
+                else:
+                    if roles_access == 0:
+                        sender(chat_id, "Недостаточно прав!")
+                    else:
+                        pass
 
         elif event.type == VkBotEventType.MESSAGE_NEW and event.from_chat and len(event.object.message['text']) == 0:
             chat_id = event.chat_id
@@ -795,6 +860,7 @@ try:
                 for i in chat_ids:
                     if str(i) == str(action_user_id):
                         Data(db).user_kick(action_user_id)
+
 except requests.exceptions.ReadTimeout:
-        print("\n Переподключение к серверам ВК \n")
-        time.sleep(3)
+    print("\n Переподключение к серверам ВК \n")
+    time.sleep(3)

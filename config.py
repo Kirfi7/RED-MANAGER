@@ -1,24 +1,38 @@
 TOKEN = 'vk1.a.cdyxNqmJCzzn0-Tt2iAvcFdMMv3nL4_cWIYPP-ej_PNbj8J1djSecMC3kHPz3YocqTdOFVfhvQ436PREHf4zVitxHVdDpvAQo0wExZjQRqjrjuSCBb9FXX90EMM_hUiYPp3d8ckMJSdx5DAYJ8N-mzqLhm0cNTw9bhr-h-QuCaCJdectyqmZj8MYEUkHLVVReC3ybm1g9JHFKAf8QdGWgg'
-DEV_IDS = ['534422651', '468509613']
-#             Миша        Кирилл
+DEV_IDS = ['534422651', '468509613', '16715256']
+#             Миша        Кирилл         Гей
 
 prefix = ['/', '!', '+']
 
 users_commands = ['help', 'id', 'getid', 'stats', 'стата', 'жив']
 
-moder_commands = ['warn', 'варн', 'unwarn', 'getacc', 'кик', 'kick', 'removenick', 'snick', 'gnick', 'setnick', 'getnick', 'staff', 'nlist', 'rnick']
+moder_commands = ['warn', 'варн', 'unwarn', 'getacc', 'кик', 'kick', 'removenick', 'snick', 'gnick', 'setnick', 'getnick', 'staff', 'nlist', 'rnick', 'ники', 'nicklist']
 
 sen_moder_commands = ['zov', 'зов', 'ban', 'unban', 'getwarn', 'warnlist', 'getban', 'rrole', 'removerole', 'moder', 'модер']
 
-admin_commands = ['bzov', 'mszov', 'sszov', 'smoder', 'смодер', 'снят']
+admin_commands = ['bzov', 'mszov', 'sszov', 'smoder', 'смодер']
 
 sen_admin_commands = ['admin', 'админ']
 
-special_commands = ['azov', 'gzov', 'lzov', 'line', 'type', 'sunbanpl', 'sbanpl', 'sunban', 'sban', 'гсопг', 'гсгосс', 'sadmin', 'садмин']
+special_commands = ['azov', 'gzov', 'lzov', 'line', 'type', 'sunbanpl', 'sbanpl', 'sunban', 'sban', 'гсопг', 'гсгосс', 'sadmin', 'садмин', 'снят']
 
-dev_commands = ['dev', 'spec', 'start']
+dev_commands = ['dev', 'spec', 'start', 'chat']
 
-help_com_0 = ''
+to_commands = ['warn', 'варн', 'unwarn', 'кик', 'kick', 'ban', 'rrole', 'removerole', 'moder', 'модер', 'admin', 'админ', 'sbanpl', 'sban', 'sadmin', 'садмин', 'снят']
+
+help_com_0 = 'Ссылки на официальные ресурсы сервера:\n\n' \
+             'Форумный раздел: https://vk.cc/clesYC\n' \
+             'Дискорд: https://discord.gg/3pDfstQVXQ\n' \
+             'ВКонтакте: vk.com/red.blackrussia.online\n' \
+             '\nСвязь с руководством сервера:\n\n' \
+             'Главный Администратор: @kirfibely\n' \
+             'Основной заместитель ГА: @xanxik\n' \
+             'Заместитель ГА: @prohor_music\n' \
+             'Команды пользователей:\n\n' \
+             '/stats (/стата) — Просмотр статистики\n' \
+             '/getid (/id) — Узнать id пользователя\n' \
+             '/help — Просмотр всех доступных команд\n' \
+             '\nНашли ошибку? Сообщите в личные сообщения бота!' \
 
 help_com_1 = 'Команды пользователей:\n\n' \
              '/stats (/стата) — Просмотр статистики\n' \
@@ -32,7 +46,7 @@ help_com_1 = 'Команды пользователей:\n\n' \
              '/getacc — Получить ВК пользователя по нику\n' \
              '/nicklist (/nlist) — Список участников с никнеймами\n' \
              '/kick (/кик) — Исключить участника из беседы\n' \
-             '/staff — Список участников с админ правами'
+             '/staff — Список участников с админ правами\n\n'\
 
 help_com_2 = 'Команды пользователей:\n\n' \
              '/stats (/стата) — Просмотр статистики\n' \
@@ -54,31 +68,9 @@ help_com_2 = 'Команды пользователей:\n\n' \
              '/ban — Заблокировать пользователя в беседе\n' \
              '/getwarn (/warnlist) — Список пользователей с варнами\n' \
              '/removerole (/rrole) — Снятие прав\n' \
-             '/moder (/модер) — Права модератора\n'
+             '/moder (/модер) — Права модератора\n\n' \
 
 help_com_3 = 'Команды пользователей:\n\n' \
-             '/stats (/стата) — Просмотр статистики\n' \
-             '/getid (/id) — Узнать id пользователя\n' \
-             '/help — Просмотр всех доступных команд\n' \
-             'Команды модераторов:\n\n' \
-             '/warn (/варн) — Выдать предупреждение пользователю\n' \
-             '/unwarn — Снять предупреждение пользователю\n' \
-             '/setnick (/snick) — Установить никнейм пользователю\n' \
-             '/getnick (/gnick) — Получить ник пользователя по ВК\n' \
-             '/getacc — Получить ВК пользователя по нику\n' \
-             '/nicklist (/nlist) — Список участников с никнеймами\n' \
-             '/kick (/кик) — Исключить участника из беседы\n' \
-             '/staff — Список участников с админ правами\n\n'\
-             'Команды старших модераторов:\n\n' \
-             '/getban — Просмотр активных блокировок пользователя\n' \
-             '/zov (/зов) — Вызов всех участников беседы\n' \
-             '/unban — Разблокировать пользователя в беседе\n' \
-             '/ban — Заблокировать пользователя в беседе\n' \
-             '/getwarn (/warnlist) — Список пользователей с варнами\n' \
-             '/removerole (/rrole) — Снятие прав\n' \
-             '/moder (/модер) — Права модератора'
-
-help_com_4 = 'Команды пользователей:\n\n' \
              '/stats (/стата) — Просмотр статистики\n' \
              '/getid (/id) — Узнать id пользователя\n' \
              '/help — Просмотр всех доступных команд\n' \
@@ -103,9 +95,9 @@ help_com_4 = 'Команды пользователей:\n\n' \
              '/bzov — Зов в беседах бизваров\n' \
              '/mszov — Зов в беседах MС\n' \
              '/sszov — Зов в беседах СС\n' \
-             '/smoder (/смодер) — Права ст. модератора\n'
+             '/smoder (/смодер) — Права ст. модератора\n\n' \
 
-help_com_5 = 'Команды пользователей:\n\n' \
+help_com_4 = 'Команды пользователей:\n\n' \
              '/stats (/стата) — Просмотр статистики\n' \
              '/getid (/id) — Узнать id пользователя\n' \
              '/help — Просмотр всех доступных команд\n' \
@@ -134,7 +126,7 @@ help_com_5 = 'Команды пользователей:\n\n' \
              'Команды старших администраторов:\n\n' \
              '/admin (/админ) — Права администратора\n\n' \
 
-help_com_6 = 'Команды пользователей:\n\n' \
+help_com_5 = 'Команды пользователей:\n\n' \
              '/stats (/стата) — Просмотр статистики\n' \
              '/getid (/id) — Узнать id пользователя\n' \
              '/help — Просмотр всех доступных команд\n' \
