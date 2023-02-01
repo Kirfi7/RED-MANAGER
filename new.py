@@ -74,12 +74,15 @@ try:
                 roles_access = 1
 
                 if cmd in to_commands:
+
                     to_user_id = Get(event.object.message, vk_session).to_user_id()
 
                     if normal_id(to_user_id) == 1:
                         from_lvl = int(Data(db).get_role(from_user_id)[2])
                         to_lvl = int(Data(db).get_role(to_user_id)[2])
-                        if from_lvl <= to_lvl and (not (from_user_id in DEV_IDS)):
+                        if from_lvl > to_lvl or from_user_id in DEV_IDS:
+                            roles_access = 1
+                        else:
                             roles_access = 0
                     else:
                         sender(chat_id, "Ссылка указана некорректно.")
