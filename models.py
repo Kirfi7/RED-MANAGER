@@ -129,9 +129,10 @@ class Data:
         return self.conn.commit(), self.conn.close(), int(res)
 
     def get_role(self, to_user_id):
-        result1 = self.c.execute(f"SELECT admin_roles FROM users WHERE user_id = '{to_user_id}'")
-        from_level = str(result1.fetchone())[1]
-        if from_level == 'None':
+        result = self.c.execute(f"SELECT admin_roles FROM users WHERE user_id = '{to_user_id}'").fetchone()
+        if len(result) > 0:
+            from_level = result[0]
+        else:
             from_level = 0
         return int(from_level)
 

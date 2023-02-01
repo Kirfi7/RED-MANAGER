@@ -11,7 +11,7 @@ vk_session = vk_api.VkApi(token=TOKEN)
 lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
-bot_ver = 2.2
+bot_ver = 2.3
 # Проставлять при аптейте комита
 
 
@@ -35,7 +35,7 @@ def normal_id(for_user_id):
         return 1
 
 
-def normal_argument(for_argument):
+def normal_argument(for_argument) -> int:
     if for_argument == 'Error' or str(for_argument) == 'None' or for_argument == '':
         return 0
     else:
@@ -111,17 +111,20 @@ try:
 
                     elif cmd == 'жив':
                         to_user_id = Get(event.object.message, vk_session).to_user_id()
-                        sender(chat_id, f"Бот работает!\nВерсия бота: {bot_ver}.")
+                        sender(chat_id, f"Бот работает!\nВерсия бота: {bot_ver}")
 
                     elif cmd == 'stats' or cmd == 'стата':
                         to_user_id = Get(event.object.message, vk_session).to_user_id()
                         db = f"data{chat_id}.db"
                         if normal_id(to_user_id) == 1:
-                            msg = f"Общая информация про [id{to_user_id}|{get_name(to_user_id)}]:\n" \
-                                  f"Роль: {role(Data(db).get_role(to_user_id))}\n" \
-                                  f"Никнейм: {Data(db).get_nick(to_user_id)[2]}\n" \
-                                  f"Количество предупреждений: {Data(db).get_warns(to_user_id)[2]}/3"
-                            sender(chat_id, msg)
+                            try:
+                                msg = f"Общая информация про [id{to_user_id}|пользователя]:\n" \
+                                      f"Роль: {role(Data(db).get_role(to_user_id))}\n" \
+                                      f"Никнейм: {Data(db).get_nick(to_user_id)[2]}\n" \
+                                      f"Количество предупреждений: {Data(db).get_warns(to_user_id)[2]}/3"
+                                sender(chat_id, msg)
+                            except:
+                                sender(chat_id, "Произошла ошибка!")
                         else:
                             sender(chat_id, "Ссылка указана некорректно.")
 
