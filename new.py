@@ -497,7 +497,7 @@ try:
                                     'items']
                                 for_chat_name = (Conservations[0]['chat_settings'])['title']
                                 try:
-                                    Data(f"Data{f_chat_id}.db").user_kick(to_user_id)
+                                    Data(f"data{f_chat_id}.db").user_kick(to_user_id)
                                     vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
                                     msg = f"[id{from_user_id}|Администратор] исключил" \
                                           f" [id{to_user_id}|пользователя] во всех беседах сервера."
