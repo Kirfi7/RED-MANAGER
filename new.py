@@ -1,18 +1,19 @@
 import sqlite3
 import datetime
+import requests
 import time
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from models import Get, Data
 from config import *
-import requests
+
 
 vk_session = vk_api.VkApi(token=TOKEN)
 lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте комита
-bot_ver = 2.7
+bot_ver = 2.8
 
 
 def sender(from_chat_id, text):
@@ -490,32 +491,21 @@ try:
                             do_not = ''
                             for for_chat_id in chat_ids:
                                 f_chat_id = for_chat_id[0]
-                                members_array = vk.messages.getConversationMembers(peer_id=2000000000 + f_chat_id)[
+                                Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
                                     'items']
-                                members = []
-                                for i in members_array:
-                                    members.append(i['member_id'])
-                                conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
-                                    'items']
-                                admin_ids = (conservations[0]['chat_settings'])['admin_ids']
-                                if int(to_user_id) in members:
-                                    Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
-                                        'items']
-                                    for_chat_name = (Conservations[0]['chat_settings'])['title']
-                                    if not (to_user_id in admin_ids):
-                                        Data(f"Data{f_chat_id}.db").user_kick(to_user_id)
-                                        vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
-                                        msg = f"[id{from_user_id}|Администратор] исключил " \
-                                              f"[id{to_user_id}|пользователя] во всех беседах сервера."
-                                        sender(f_chat_id, msg)
-                                        chats += f'{for_chat_name} | {f_chat_id}\n'
-                                    else:
-                                        do_not += f"{for_chat_name} | {f_chat_id}\n"
+                                for_chat_name = (Conservations[0]['chat_settings'])['title']
+                                try:
+                                    Data(f"Data{f_chat_id}.db").user_kick(to_user_id)
+                                    vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
+                                    msg = f"[id{from_user_id}|Администратор] исключил " \
+                                            f"[id{to_user_id}|пользователя] во всех беседах сервера."
+                                    sender(f_chat_id, msg)
+                                    chats += f'{for_chat_name} | {f_chat_id}\n'
+                                except:
+                                    pass
                             if len(chats) > 0:
                                 sender(chat_id, "Пользователь исключён успешно! Статистика выгружена вам в ЛС.")
                                 l_sender(from_user_id, f"Пользователь был исключён из чатов:\n\n{chats}")
-                            if len(do_not) > 0:
-                                l_sender(from_user_id, f"Не удалось исключить из чатов:\n\n{do_not}")
                         else:
                             sender(chat_id, "Ссылка указана некорректно.")
 
