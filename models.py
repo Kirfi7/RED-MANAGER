@@ -124,17 +124,13 @@ class Data:
         else:
             return 0
 
-    def user_role(self, user_id):
-        res = self.c.execute(f"SELECT admin_roles FROM users WHERE user_id = '{user_id}'").fetchone()[0]
-        return self.conn.commit(), self.conn.close(), int(res)
-
     def get_role(self, to_user_id):
         result = self.c.execute(f"SELECT admin_roles FROM users WHERE user_id = '{to_user_id}'").fetchone()
         if len(result) > 0:
             from_level = result[0]
         else:
             from_level = 0
-        return int(from_level)
+        return self.conn.commit(), self.conn.close(), int(from_level)
 
     def new_user(self, to_user_id):
         self.c.execute(f"""INSERT INTO users VALUES (
@@ -248,54 +244,41 @@ class Data:
               '\n\nЗам. Главного Администратора:\n— [id327113505|Ricardo_Vendetta]\n— [id16715256|Prokhor_Adzinets]' \
                 '\n\nКураторы Администрации:\n— [id534422651|Mikhail_Pearson]\n— [id137480835|Serega_Forestry]\n'
         r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '4'").fetchall()
-        if len(r) > 0:
-            msg_4 = msg_5 + '\nСтаршие Администраторы:\n'
-            for i in range(len(r)):
-                for_id = r[i][0]
-                fet = self.c.execute(f"SELECT nick_name FROM users WHERE user_id = {for_id}")
-                for_nick = fet.fetchone()[0]
-                if for_nick == 'Нет' or for_nick == 'None' or for_nick == 'Error' or for_nick == '':
-                    for_nick = get_name(for_id)
-                msg_4 = msg_4 + f'— [id{for_id}|{for_nick}]\n'
-        else:
-            msg_4 = msg_5
+        msg_4 = msg_5 + '\nСтаршие Администраторы:\n'
+        for i in range(len(r)):
+            for_id = r[i][0]
+            fet = self.c.execute(f"SELECT nick_name FROM users WHERE user_id = {for_id}")
+            for_nick = fet.fetchone()[0]
+            if for_nick == 'Нет' or for_nick == 'None' or for_nick == 'Error' or for_nick == '':
+                for_nick = get_name(for_id)
+            msg_4 = msg_4 + f'— [id{for_id}|{for_nick}]\n'
         r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '3'").fetchall()
-        if len(r) > 0:
-            msg_3 = msg_4 + '\nАдминистраторы:\n'
-            for i in range(len(r)):
-                for_id = r[i][0]
-                fet = self.c.execute(f"SELECT nick_name FROM users WHERE user_id = {for_id}")
-                for_nick = fet.fetchone()[0]
-                if for_nick == 'Нет' or for_nick == 'None' or for_nick == 'Error' or for_nick == '':
-                    for_nick = get_name(for_id)
-                msg_3 = msg_3 + f'— [id{for_id}|{for_nick}]\n'
-        else:
-            msg_3 = msg_4
+        msg_3 = msg_4 + '\nАдминистраторы:\n'
+        for i in range(len(r)):
+            for_id = r[i][0]
+            fet = self.c.execute(f"SELECT nick_name FROM users WHERE user_id = {for_id}")
+            for_nick = fet.fetchone()[0]
+            if for_nick == 'Нет' or for_nick == 'None' or for_nick == 'Error' or for_nick == '':
+                for_nick = get_name(for_id)
+            msg_3 = msg_3 + f'— [id{for_id}|{for_nick}]\n'
         r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '2'").fetchall()
-        if len(r) > 0:
-            msg_2 = msg_3 + '\nСтаршие Модераторы:\n'
-            for i in range(len(r)):
-                for_id = r[i][0]
-                fet = self.c.execute(f"SELECT nick_name FROM users WHERE user_id = {for_id}")
-                for_nick = fet.fetchone()[0]
-                if for_nick == 'Нет' or for_nick == 'None' or for_nick == 'Error' or for_nick == '':
-                    for_nick = get_name(for_id)
-                msg_2 = msg_2 + f'— [id{for_id}|{for_nick}]\n'
-        else:
-            msg_2 = msg_3
-        r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '1'")
-        result = r.fetchall()
-        if len(result) > 0:
-            msg = msg_2 + '\nМодераторы:\n'
-            for i in range(len(result)):
-                for_id = result[i][0]
-                fet = self.c.execute(f"SELECT nick_name FROM users WHERE user_id = {for_id}")
-                for_nick = fet.fetchone()[0]
-                if for_nick == 'Нет' or for_nick == 'None' or for_nick == 'Error' or for_nick == '':
-                    for_nick = get_name(for_id)
-                msg = msg + f'— [id{for_id}|{for_nick}]\n'
-        else:
-            msg = msg_2
+        msg_2 = msg_3 + '\nСтаршие Модераторы:\n'
+        for i in range(len(r)):
+            for_id = r[i][0]
+            fet = self.c.execute(f"SELECT nick_name FROM users WHERE user_id = {for_id}")
+            for_nick = fet.fetchone()[0]
+            if for_nick == 'Нет' or for_nick == 'None' or for_nick == 'Error' or for_nick == '':
+                for_nick = get_name(for_id)
+            msg_2 = msg_2 + f'— [id{for_id}|{for_nick}]\n'
+        r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '1'").fetchall()
+        msg = msg_2 + '\nМодераторы:\n'
+        for i in range(len(r)):
+            for_id = r[i][0]
+            fet = self.c.execute(f"SELECT nick_name FROM users WHERE user_id = {for_id}")
+            for_nick = fet.fetchone()[0]
+            if for_nick == 'Нет' or for_nick == 'None' or for_nick == 'Error' or for_nick == '':
+                for_nick = get_name(for_id)
+            msg = msg + f'— [id{for_id}|{for_nick}]\n'
         return self.conn.commit(), self.conn.close(), msg
 
     def get_acc(self, nick_name):

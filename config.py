@@ -24,10 +24,10 @@ admin_commands = ['bzov', 'mszov', 'sszov', 'smoder', 'смодер']
 sen_admin_commands = ['admin', 'админ']
 
 # команды 5+ lvl
-special_commands = ['azov', 'gzov', 'lzov', 'line', 'type', 'sunbanpl', 'sbanpl', 'sunban', 'sban', 'гсопг', 'гсгосс', 'sadmin', 'садмин', 'снят']
+special_commands = ['azov', 'gzov', 'lzov', 'line', 'type', 'sunbanpl', 'sbanpl', 'sunban', 'sban', 'гсопг', 'гсгосс', 'sadmin', 'садмин', 'снят', 'chat']
 
 # команды разработчиков
-dev_commands = ['dev', 'spec', 'start', 'chat']
+dev_commands = ['spec', 'start']
 
 # команды с тригером на иерархию ролей
 to_commands = ['warn', 'варн', 'unwarn', 'кик', 'kick', 'ban', 'rrole', 'removerole', 'moder', 'модер', 'admin', 'админ', 'sbanpl', 'sban', 'sadmin', 'садмин', 'снят']

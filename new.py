@@ -11,8 +11,8 @@ vk_session = vk_api.VkApi(token=TOKEN)
 lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
-bot_ver = 2.5
 # Проставлять при апдейте комита
+bot_ver = 2.6
 
 
 def sender(from_chat_id, text):
@@ -76,8 +76,8 @@ try:
                     to_user_id = Get(event.object.message, vk_session).to_user_id()
 
                     if normal_id(to_user_id) == 1:
-                        from_lvl = int(Data(db).user_role(from_user_id)[2])
-                        to_lvl = int(Data(db).user_role(to_user_id)[2])
+                        from_lvl = int(Data(db).get_role(from_user_id)[2])
+                        to_lvl = int(Data(db).get_role(to_user_id)[2])
                         if from_lvl <= to_lvl and (not (from_user_id in DEV_IDS)):
                             roles_access = 0
                     else:
@@ -85,7 +85,7 @@ try:
 
                 if cmd in users_commands and roles_access == 1:
                     if cmd == 'help':
-                        lvl = int(Data(db).user_role(from_user_id)[2])
+                        lvl = int(Data(db).get_role(from_user_id)[2])
                         if lvl == 0:
                             sender(chat_id, help_com_0)
                         elif lvl == 1:
@@ -130,7 +130,7 @@ try:
 
                 elif cmd in moder_commands and roles_access == 1:
 
-                    lvl = Data(db).user_role(from_user_id)[2]
+                    lvl = Data(db).get_role(from_user_id)[2]
                     if lvl < 1:
                         sender(chat_id, "Недостаточно прав!")
 
@@ -233,7 +233,7 @@ try:
 
                 elif cmd in sen_moder_commands and roles_access == 1:
 
-                    lvl = Data(db).user_role(from_user_id)[2]
+                    lvl = Data(db).get_role(from_user_id)[2]
                     if lvl < 2:
                         sender(chat_id, "Недостаточно прав!")
 
@@ -348,7 +348,7 @@ try:
 
                 elif cmd in admin_commands and roles_access == 1:
 
-                    lvl = Data(db).user_role(from_user_id)[2]
+                    lvl = Data(db).get_role(from_user_id)[2]
                     if lvl < 3:
                         sender(chat_id, "Недостаточно прав!")
 
@@ -451,7 +451,7 @@ try:
 
                 elif cmd in sen_admin_commands and roles_access == 1:
 
-                    lvl = Data(db).user_role(from_user_id)[2]
+                    lvl = Data(db).get_role(from_user_id)[2]
                     if lvl < 4:
                         sender(chat_id, "Недостаточно прав!")
 
@@ -474,7 +474,7 @@ try:
 
                 elif cmd in special_commands and roles_access == 1:
 
-                    lvl = Data(db).user_role(from_user_id)[2]
+                    lvl = Data(db).get_role(from_user_id)[2]
                     if lvl < 5:
                         sender(chat_id, "Недостаточно прав!")
 
@@ -787,6 +787,15 @@ try:
                         else:
                             sender(chat_id, "Ссылка указана некорректно.")
 
+                    elif cmd == 'chat':
+                        db = sqlite3.connect('global_base.db')
+                        c = db.cursor()
+                        res = c.execute(f"SELECT chat_type, chat_line FROM chat WHERE chat_id = '{chat_id}'").fetchall()
+                        msg = str(res[0])[1:-1]
+                        db.commit()
+                        db.close()
+                        sender(chat_id, f"Локальный ID беседы: {chat_id}\nНастройки беседы: {msg}")
+
                 elif cmd in dev_commands and roles_access == 1:
 
                     if str(from_user_id) in DEV_IDS:
@@ -798,15 +807,6 @@ try:
                                 members.append(i['member_id'])
                             Data(db).start(members, chat_id)
                             sender(chat_id, "Бот успешно запущен!")
-
-                        elif cmd == 'chat':
-                            db = sqlite3.connect('global_base.db')
-                            c = db.cursor()
-                            res = c.execute(f"SELECT chat_type, chat_line FROM chat WHERE chat_id = '{chat_id}'").fetchall()
-                            msg = str(res[0])[1:-1]
-                            db.commit()
-                            db.close()
-                            sender(chat_id, f"Локальный ID беседы: {chat_id}\nНастройки беседы: {msg}")
 
                         elif cmd == 'spec':
                             to_user_id = Get(event.object.message, vk_session).to_user_id()
