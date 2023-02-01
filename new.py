@@ -11,8 +11,8 @@ vk_session = vk_api.VkApi(token=TOKEN)
 lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
-bot_ver = 2.3
-# Проставлять при аптейте комита
+bot_ver = 2.4
+# Проставлять при апдейте комита
 
 
 def sender(from_chat_id, text):
