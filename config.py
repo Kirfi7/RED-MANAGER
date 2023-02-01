@@ -1,25 +1,38 @@
 TOKEN = 'vk1.a.cdyxNqmJCzzn0-Tt2iAvcFdMMv3nL4_cWIYPP-ej_PNbj8J1djSecMC3kHPz3YocqTdOFVfhvQ436PREHf4zVitxHVdDpvAQo0wExZjQRqjrjuSCBb9FXX90EMM_hUiYPp3d8ckMJSdx5DAYJ8N-mzqLhm0cNTw9bhr-h-QuCaCJdectyqmZj8MYEUkHLVVReC3ybm1g9JHFKAf8QdGWgg'
-DEV_IDS = ['534422651', '468509613', '16715256']
-#             Миша        Кирилл         Гей
+
+DEV_IDS = ['534422651', '468509613']
+#             Миша        Кирилл
+
+STAFF_IDS = ['327113505', '16715256', '137480835']
+#               Влад         Гей         Серый
 
 prefix = ['/', '!', '+']
 
+# команды 0+ lvl
 users_commands = ['help', 'id', 'getid', 'stats', 'стата', 'жив']
 
+# команды 1+ lvl
 moder_commands = ['warn', 'варн', 'unwarn', 'getacc', 'кик', 'kick', 'removenick', 'snick', 'gnick', 'setnick', 'getnick', 'staff', 'nlist', 'rnick', 'ники', 'nicklist']
 
+# команды 2+ lvl
 sen_moder_commands = ['zov', 'зов', 'ban', 'unban', 'getwarn', 'warnlist', 'getban', 'rrole', 'removerole', 'moder', 'модер']
 
+# команды 3+ lvl
 admin_commands = ['bzov', 'mszov', 'sszov', 'smoder', 'смодер']
 
+# команды 4+ lvl
 sen_admin_commands = ['admin', 'админ']
 
+# команды 5+ lvl
 special_commands = ['azov', 'gzov', 'lzov', 'line', 'type', 'sunbanpl', 'sbanpl', 'sunban', 'sban', 'гсопг', 'гсгосс', 'sadmin', 'садмин', 'снят']
 
+# команды разработчиков
 dev_commands = ['dev', 'spec', 'start', 'chat']
 
+# команды с тригером на иерархию ролей
 to_commands = ['warn', 'варн', 'unwarn', 'кик', 'kick', 'ban', 'rrole', 'removerole', 'moder', 'модер', 'admin', 'админ', 'sbanpl', 'sban', 'sadmin', 'садмин', 'снят']
 
+# ниже варианты сообщений для /help
 help_com_0 = '— Ссылки на официальные ресурсы сервера:\n\n' \
              'Форумный раздел: https://vk.cc/clesYC\n' \
              'Дискорд: https://discord.gg/3pDfstQVXQ\n' \
@@ -166,4 +179,3 @@ help_com_5 = '— Команды пользователей:\n\n' \
              '/sban — Бан во всех беседах (Кроме МС)\n' \
              '/sunban — Снятие глобальной блокировки (Кроме МС)\n' \
              '/sadmin (/садмин) — Выдать права ст. админа\n' \
-

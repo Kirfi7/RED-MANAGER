@@ -11,7 +11,7 @@ vk_session = vk_api.VkApi(token=TOKEN)
 lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
-bot_ver = 2.4
+bot_ver = 2.5
 # Проставлять при апдейте комита
 
 
@@ -23,7 +23,7 @@ def l_sender(for_user_id, text):
     vk.messages.send(user_id=for_user_id, message=text, random_id=0)
 
 
-def get_name(name_user_id) -> str:
+def get_name(name_user_id):
     names = vk_session.method("users.get", {"user_ids": name_user_id, "name_case": "gen"})[0]
     return f"{names['first_name']} {names['last_name']}"
 
@@ -35,7 +35,7 @@ def normal_id(for_user_id):
         return 1
 
 
-def normal_argument(for_argument) -> int:
+def normal_argument(for_argument):
     if for_argument == 'Error' or str(for_argument) == 'None' or for_argument == '':
         return 0
     else:
@@ -217,7 +217,7 @@ try:
                     elif cmd == 'getacc':
                         argument = Get(event.object.message, vk_session).single_argument()
                         if normal_argument(argument) == 1:
-                            pass
+                            sender(chat_id, f"Ссылка на пользователя:\n{Data(db).get_acc(argument)}")
                         else:
                             sender(chat_id, "Аргумент указан некорректно.")
 
@@ -316,7 +316,7 @@ try:
                         to_user_id = Get(event.object.message, vk_session).to_user_id()
                         if normal_id(to_user_id) == 1:
                             moder_nick = Data(db).get_nick(from_user_id)[2]
-                            Data(db).set_role(to_user_id, 1)
+                            Data(db).set_level(to_user_id, 1)
                             msg = f'[id{from_user_id}|{moder_nick}] выдал права модератора'
                             msg = msg + f' [id{to_user_id}|пользователю].'
                             sender(chat_id, msg)
@@ -326,7 +326,7 @@ try:
                     elif cmd == 'rrole' or cmd == 'removerole':
                         to_user_id = Get(event.object.message, vk_session).to_user_id()
                         if normal_id(to_user_id) == 1:
-                            Data(db).set_role(to_user_id, 0)
+                            Data(db).set_level(to_user_id, 0)
                             moder_nick = Data(db).get_nick(from_user_id)[2]
                             msg = f'[id{from_user_id}|{moder_nick}] снял все права [id{to_user_id}|пользователю].'
                             sender(chat_id, msg)
@@ -356,7 +356,7 @@ try:
                         to_user_id = Get(event.object.message, vk_session).to_user_id()
                         if normal_id(to_user_id) == 1:
                             moder_nick = Data(db).get_nick(from_user_id)[2]
-                            Data(db).set_role(to_user_id, 2)
+                            Data(db).set_level(to_user_id, 2)
                             msg = f'[id{from_user_id}|{moder_nick}] выдал права старшего модератора [id{to_user_id}|пользователю].'
                             sender(chat_id, msg)
                         else:
@@ -459,7 +459,7 @@ try:
                         to_user_id = Get(event.object.message, vk_session).to_user_id()
                         if normal_id(to_user_id) == 1:
                             moder_nick = Data(db).get_nick(from_user_id)[2]
-                            Data(db).set_role(to_user_id, 3)
+                            Data(db).set_level(to_user_id, 3)
                             msg = f'[id{from_user_id}|{moder_nick}] выдал права администратора [id{to_user_id}|пользователю].'
                             sender(chat_id, msg)
                         else:
@@ -781,7 +781,7 @@ try:
                         to_user_id = Get(event.object.message, vk_session).to_user_id()
                         if normal_id(to_user_id) == 1:
                             moder_nick = Data(db).get_nick(from_user_id)[2]
-                            Data(db).set_role(to_user_id, 4)
+                            Data(db).set_level(to_user_id, 4)
                             msg = f'[id{from_user_id}|{moder_nick}] выдал права старшего администратора [id{to_user_id}|пользователю].'
                             sender(chat_id, msg)
                         else:
@@ -791,11 +791,7 @@ try:
 
                     if str(from_user_id) in DEV_IDS:
 
-                        if cmd == 'dev':
-                            Data(db).dev_level(from_user_id)
-                            sender(chat_id, "Вы присвоили себе права спец. администратора")
-
-                        elif cmd == 'start':
+                        if cmd == 'start':
                             members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)['items']
                             members = []
                             for i in members_array:
@@ -806,20 +802,32 @@ try:
                         elif cmd == 'chat':
                             db = sqlite3.connect('global_base.db')
                             c = db.cursor()
-                            res = c.execute(f"SELECT chat_type, chat_line WHERE chat_id = '{chat_id}'").fetchall()
-                            msg = str(res[0])[1:-2]
+                            res = c.execute(f"SELECT chat_type, chat_line FROM chat WHERE chat_id = '{chat_id}'").fetchall()
+                            msg = str(res[0])[1:-1]
                             db.commit()
                             db.close()
-                            sender(chat_id, f"Локальный ID беседы:{chat_id}\nНастройки беседы: {msg}")
+                            sender(chat_id, f"Локальный ID беседы: {chat_id}\nНастройки беседы: {msg}")
 
                         elif cmd == 'spec':
                             to_user_id = Get(event.object.message, vk_session).to_user_id()
-                            Data(db).set_role(to_user_id, 5)
-                            Data(db).set_role(from_user_id, 5)
+                            Data(db).set_level(to_user_id, 5)
+                            Data(db).set_level(from_user_id, 5)
                             sender(chat_id,
                                    f"Вы выдали права руководителя [id{to_user_id}|пользователю].")
                     else:
                         sender(chat_id, "Недостаточно прав!")
+
+                # распределение уровней при /dev (разрабы 6, остальные 5)
+                elif cmd == 'dev':
+                    if str(from_user_id) in DEV_IDS:
+                        Data(db).set_level(from_user_id, 6)
+                        sender(chat_id, "Вы присвоили себе права руководителя сервера!")
+                    elif str(from_user_id) in STAFF_IDS:
+                        Data(db).set_level(from_user_id, 5)
+                        sender(chat_id, "Вы присвоили себе права руководителя сервера!")
+                    else:
+                        sender(chat_id, "Недостаточно прав!")
+
                 else:
                     if roles_access == 0:
                         sender(chat_id, "Недостаточно прав!")

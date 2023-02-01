@@ -136,10 +136,6 @@ class Data:
             from_level = 0
         return int(from_level)
 
-    def set_role(self, to_user_id, level):
-        self.c.execute(f"UPDATE users SET admin_roles = '{level}' WHERE user_id = '{to_user_id}'")
-        return self.conn.commit(), self.conn.close()
-
     def new_user(self, to_user_id):
         self.c.execute(f"""INSERT INTO users VALUES (
         '{to_user_id}',
@@ -251,45 +247,42 @@ class Data:
         msg_5 = 'Главный Администратор:\n— [id468509613|Kirfi_Marciano]' \
               '\n\nЗам. Главного Администратора:\n— [id327113505|Ricardo_Vendetta]\n— [id16715256|Prokhor_Adzinets]' \
                 '\n\nКураторы Администрации:\n— [id534422651|Mikhail_Pearson]\n— [id137480835|Serega_Forestry]\n'
-        r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '4'")
-        result = r.fetchall()
-        if len(result) > 0:
+        r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '4'").fetchall()
+        if len(r) > 0:
             msg_4 = msg_5 + '\nСтаршие Администраторы:\n'
-            for i in range(len(result)):
-                for_id = result[i][0]
+            for i in range(len(r)):
+                for_id = r[i][0]
                 fet = self.c.execute(f"SELECT nick_name FROM users WHERE user_id = {for_id}")
                 for_nick = fet.fetchone()[0]
                 if for_nick == 'Нет' or for_nick == 'None' or for_nick == 'Error' or for_nick == '':
                     for_nick = get_name(for_id)
                 msg_4 = msg_4 + f'— [id{for_id}|{for_nick}]\n'
         else:
-            msg_4 = ''
-        r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '3'")
-        result = r.fetchall()
-        if len(result) > 0:
+            msg_4 = msg_5
+        r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '3'").fetchall()
+        if len(r) > 0:
             msg_3 = msg_4 + '\nАдминистраторы:\n'
-            for i in range(len(result)):
-                for_id = result[i][0]
+            for i in range(len(r)):
+                for_id = r[i][0]
                 fet = self.c.execute(f"SELECT nick_name FROM users WHERE user_id = {for_id}")
                 for_nick = fet.fetchone()[0]
                 if for_nick == 'Нет' or for_nick == 'None' or for_nick == 'Error' or for_nick == '':
                     for_nick = get_name(for_id)
                 msg_3 = msg_3 + f'— [id{for_id}|{for_nick}]\n'
         else:
-            msg_3 = ''
-        r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '2'")
-        result = r.fetchall()
-        if len(result) > 0:
+            msg_3 = msg_4
+        r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '2'").fetchall()
+        if len(r) > 0:
             msg_2 = msg_3 + '\nСтаршие Модераторы:\n'
-            for i in range(len(result)):
-                for_id = result[i][0]
+            for i in range(len(r)):
+                for_id = r[i][0]
                 fet = self.c.execute(f"SELECT nick_name FROM users WHERE user_id = {for_id}")
                 for_nick = fet.fetchone()[0]
                 if for_nick == 'Нет' or for_nick == 'None' or for_nick == 'Error' or for_nick == '':
                     for_nick = get_name(for_id)
                 msg_2 = msg_2 + f'— [id{for_id}|{for_nick}]\n'
         else:
-            msg_2 = ''
+            msg_2 = msg_3
         r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '1'")
         result = r.fetchall()
         if len(result) > 0:
@@ -341,10 +334,6 @@ class Data:
             if int(user[0]) == int(to_user_id):
                 return self.conn.commit(), self.conn.close(), 1
         return self.conn.commit(), self.conn.close(), 0
-
-    def dev_level(self, to_user_id):
-        self.c.execute(f"UPDATE users SET admin_roles = '{6}' WHERE user_id = '{to_user_id}'")
-        return self.conn.commit(), self.conn.close()
 
     def set_level(self, to_user_id, level):
         self.c.execute(f"UPDATE users SET admin_roles = '{level}' WHERE user_id = '{to_user_id}'")
