@@ -493,18 +493,17 @@ try:
                                 Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
                                     'items']
                                 for_chat_name = (Conservations[0]['chat_settings'])['title']
-                                print(f_chat_id, for_chat_name)
                                 try:
                                     Data(f"Data{f_chat_id}.db").user_kick(to_user_id)
                                     vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
                                     msg = f"[id{from_user_id}|Администратор] исключил" \
-                                          f"[id{to_user_id}|пользователя] во всех беседах сервера."
+                                          f" [id{to_user_id}|пользователя] во всех беседах сервера."
                                     sender(f_chat_id, msg)
                                     chats += f'{for_chat_name} | {f_chat_id}\n'
                                 except:
                                     chats += ''
                             if len(chats) > 0:
-                                sender(chat_id, "Пользователь исключён успешно! Статистика выгружена вам в ЛС.")
+                                sender(chat_id, f"[id{to_user_id}|Пользователь] успешно снят\nСтатистика выгружена вам в ЛС")
                                 l_sender(from_user_id, f"Пользователь был исключён из чатов:\n\n{chats}")
                         else:
                             sender(chat_id, "Ссылка указана некорректно.")
