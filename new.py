@@ -13,7 +13,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте комита
-bot_ver = 2.8
+bot_ver = 2.9
 
 
 def sender(from_chat_id, text):
@@ -63,13 +63,13 @@ try:
 
         if event.type == VkBotEventType.MESSAGE_NEW and event.from_chat and len(event.object.message['text']) > 0:
 
-            chat_id = event.chat_id
-            db = f"data{chat_id}.db"
             message_text = event.object.message['text']
-            from_user_id = event.object.message['from_id']
 
             if message_text[0] in prefix:
 
+                chat_id = event.chat_id
+                db = f"data{chat_id}.db"
+                from_user_id = event.object.message['from_id']
                 cmd = (message_text.split()[0])[1:]
                 roles_access = 1
 
@@ -484,25 +484,25 @@ try:
                         if normal_id(to_user_id) == 1:
                             db = sqlite3.connect('global_base.db')
                             c = db.cursor()
-                            chat_ids = (c.execute(f"SELECT chat_id FROM chat").fetchall())
+                            chat_ids = c.execute(f"SELECT chat_id FROM chat").fetchall()
                             db.commit()
                             db.close()
                             chats = ''
-                            do_not = ''
                             for for_chat_id in chat_ids:
                                 f_chat_id = for_chat_id[0]
                                 Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
                                     'items']
                                 for_chat_name = (Conservations[0]['chat_settings'])['title']
+                                print(f_chat_id, for_chat_name)
                                 try:
                                     Data(f"Data{f_chat_id}.db").user_kick(to_user_id)
                                     vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
-                                    msg = f"[id{from_user_id}|Администратор] исключил " \
-                                            f"[id{to_user_id}|пользователя] во всех беседах сервера."
+                                    msg = f"[id{from_user_id}|Администратор] исключил" \
+                                          f"[id{to_user_id}|пользователя] во всех беседах сервера."
                                     sender(f_chat_id, msg)
                                     chats += f'{for_chat_name} | {f_chat_id}\n'
                                 except:
-                                    pass
+                                    chats += ''
                             if len(chats) > 0:
                                 sender(chat_id, "Пользователь исключён успешно! Статистика выгружена вам в ЛС.")
                                 l_sender(from_user_id, f"Пользователь был исключён из чатов:\n\n{chats}")
@@ -788,7 +788,7 @@ try:
 
                 elif cmd in dev_commands and roles_access == 1:
 
-                    if str(from_user_id) in DEV_IDS:
+                    if str(from_user_id) in DEV_IDS or str(from_user_id) in STAFF_IDS:
 
                         if cmd == 'start':
                             members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)['items']
@@ -804,6 +804,10 @@ try:
                             Data(db).set_level(from_user_id, 5)
                             sender(chat_id,
                                    f"Вы выдали права руководителя [id{to_user_id}|пользователю].")
+
+                        elif cmd == 'sync':
+                            pass
+
                     else:
                         sender(chat_id, "Недостаточно прав!")
 

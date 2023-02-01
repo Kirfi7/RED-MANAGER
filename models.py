@@ -90,7 +90,10 @@ class Data:
             return self.conn.commit(), self.conn.close(), "Error"
 
     def user_kick(self, to_user_id):
-        self.c.execute(f"DELETE FROM users WHERE user_id = '{to_user_id}'")
+        try:
+            self.c.execute(f"DELETE FROM users WHERE user_id = '{to_user_id}'")
+        except:
+            pass
         return self.conn.commit(), self.conn.close()
 
     def rem_nick(self, to_user_id):
