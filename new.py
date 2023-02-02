@@ -80,27 +80,29 @@ while True:
                 if event.type == VkBotEventType.MESSAGE_NEW and event.from_chat and len(event.object.message['text']) > 0:
 
                     message_text = event.object.message['text']
+                    chat_id = event.chat_id
+                    message_id = event.object.message['conversation_message_id']
+
+                    is_quiet = 0
+                    database = sqlite3.connect('quiet.db')
+                    c = database.cursor()
+                    chats = c.execute(f"SELECT * FROM quiet").fetchall()
+                    database.commit()
+                    database.close()
+                    for i in chats:
+                        print(int(i[0]))
+                        if int(i[0]) == chat_id:
+                            is_quiet = 1
+
+                    if is_quiet == 1:
+                        deleter(chat_id, message_id)
 
                     if message_text[0] in prefix:
 
-                        chat_id = event.chat_id
                         db = f"data{chat_id}.db"
                         from_user_id = event.object.message['from_id']
                         cmd = ((message_text.split()[0])[1:]).lower()
                         roles_access = 1
-                        message_id = event.object.message['conversation_message_id']
-                        try:
-                            dtab = sqlite3.connect('quiet.db')
-                            c = dtab.cursor()
-                            quiets = c.execute(f"SELECT * FROM quiet WHERE chat_id = '{chat_id}'").fetchall()
-                            dtab.commit()
-                            dtab.close()
-                            is_quiet = 1
-                        except:
-                            is_quiet = 0
-
-                        if is_quiet == 1:
-                            deleter(chat_id, message_id)
 
                         if cmd in to_commands:
 
@@ -907,22 +909,23 @@ while True:
                                         handle.close()
 
                                 elif cmd == 'тишина':
-                                    try:
+                                    print(is_quiet)
+                                    if is_quiet == 1:
                                         datab = sqlite3.connect('quiet.db')
                                         c = datab.cursor()
                                         c.execute(f"DELETE FROM quiet WHERE chat_id = '{chat_id}'")
                                         datab.commit()
                                         datab.close()
                                         moder_nick = Data(db).get_nick(from_user_id)[2]
-                                        sender(chat_id, f"[{from_user_id}|{moder_nick}] выключил режим тишины!")
-                                    except:
+                                        sender(chat_id, f"[id{from_user_id}|{moder_nick}] выключил режим тишины!")
+                                    else:
                                         datab = sqlite3.connect('quiet.db')
                                         c = datab.cursor()
                                         c.execute(f"INSERT INTO quiet VALUES ('{chat_id}')")
                                         datab.commit()
                                         datab.close()
                                         moder_nick = Data(db).get_nick(from_user_id)[2]
-                                        sender(chat_id, f"[{from_user_id}|{moder_nick}] включил режим тишины!")
+                                        sender(chat_id, f"[id{from_user_id}|{moder_nick}] включил режим тишины!")
 
                                     # tr = classtracker.ClassTracker()
                                     # # sender(chat_id, tr)
