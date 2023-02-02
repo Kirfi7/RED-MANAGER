@@ -24,8 +24,9 @@ vk = vk_session.get_api()
 # Проставлять при апдейте комита
 bot_ver = "4.1"
 
-def deleter(from_chat_id, all, cm):
-    vk_session.method('messages.delete', {'chat_id': from_chat_id, 'delete_for_all': all, 'cmids': cm})
+
+def deleter(from_chat_id, cm):
+    vk.messages.delete(chat_id=from_chat_id, delete_for_all=1, cmids=cm)
 
 
 def sender(from_chat_id, text):
@@ -87,7 +88,19 @@ while True:
                         from_user_id = event.object.message['from_id']
                         cmd = ((message_text.split()[0])[1:]).lower()
                         roles_access = 1
-                        message_id = vk.Get
+                        message_id = event.object.message['conversation_message_id']
+                        try:
+                            dtab = sqlite3.connect('quiet.db')
+                            c = dtab.cursor()
+                            quiets = c.execute(f"SELECT * FROM quiet WHERE chat_id = '{chat_id}'").fetchall()
+                            dtab.commit()
+                            dtab.close()
+                            is_quiet = 1
+                        except:
+                            is_quiet = 0
+
+                        if is_quiet == 1:
+                            deleter(chat_id, message_id)
 
                         if cmd in to_commands:
 
@@ -891,9 +904,22 @@ while True:
                                         handle.close()
 
                                 elif cmd == 'тишина':
-                                    sender(chat_id, 'тест режим тишины')
-                                    cmds = event.object['conversation_message_id']
-                                    deleter(chat_id, 1, cmds)
+                                    try:
+                                        datab = sqlite3.connect('quiet.db')
+                                        c = datab.cursor()
+                                        c.execute(f"DELETE FROM quiet WHERE chat_id = '{chat_id}'")
+                                        datab.commit()
+                                        datab.close()
+                                        moder_nick = Data(db).get_nick(from_user_id)[2]
+                                        sender(chat_id, f"[{from_user_id}|{moder_nick}] выключил режим тишины!")
+                                    except:
+                                        datab = sqlite3.connect('quiet.db')
+                                        c = datab.cursor()
+                                        c.execute(f"INSERT INTO quiet VALUES ('{chat_id}')")
+                                        datab.commit()
+                                        datab.close()
+                                        moder_nick = Data(db).get_nick(from_user_id)[2]
+                                        sender(chat_id, f"[{from_user_id}|{moder_nick}] включил режим тишины!")
 
                                     # tr = classtracker.ClassTracker()
                                     # # sender(chat_id, tr)
