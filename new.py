@@ -7,7 +7,7 @@ import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from models import Get, Data
 from config import *
-# from pympler import classtracker
+from pympler import classtracker
 # from pympler import tracker
 # from tqdm import trange
 
@@ -17,7 +17,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте комита
-bot_ver = 3.5
+bot_ver = 0.3.6
 
 
 def sender(from_chat_id, text):
@@ -28,8 +28,12 @@ def l_sender(for_user_id, text):
     vk.messages.send(user_id=for_user_id, message=text, random_id=0)
 
 
+# def log_sender(from_chat_id, )
+
+
 def get_name(name_user_id):
     names = vk_session.method("users.get", {"user_ids": name_user_id, "name_case": "gen"})[0]
+    print(f"{names['first_name']} {names['last_name']}")
     return f"{names['first_name']} {names['last_name']}"
 
 
@@ -75,7 +79,7 @@ while True:
                         chat_id = event.chat_id
                         db = f"data{chat_id}.db"
                         from_user_id = event.object.message['from_id']
-                        cmd = (message_text.split()[0])[1:]
+                        cmd = ((message_text.split()[0])[1:]).lower()
                         roles_access = 1
 
                         if cmd in to_commands:
@@ -85,7 +89,7 @@ while True:
                             if normal_id(to_user_id) == 1:
                                 from_lvl = int(Data(db).get_role(from_user_id)[2])
                                 to_lvl = int(Data(db).get_role(to_user_id)[2])
-                                if from_lvl > to_lvl or from_user_id in DEV_IDS:
+                                if from_lvl > to_lvl or str(from_user_id) in DEV_IDS:
                                     roles_access = 1
                                 else:
                                     roles_access = 0
@@ -126,14 +130,11 @@ while True:
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
                                 db = f"data{chat_id}.db"
                                 if normal_id(to_user_id) == 1:
-                                    try:
-                                        msg = f"Общая информация про [id{to_user_id}|пользователя]:\n" \
-                                              f"Роль: {role(Data(db).get_role(to_user_id))}\n" \
-                                              f"Никнейм: {Data(db).get_nick(to_user_id)[2]}\n" \
-                                              f"Количество предупреждений: {Data(db).get_warns(to_user_id)[2]}/3"
-                                        sender(chat_id, msg)
-                                    except:
-                                        sender(chat_id, "Произошла ошибка!")
+                                    msg = f"Общая информация про [id{to_user_id}|пользователя]:\n" \
+                                          f"Роль: {role(Data(db).get_role(to_user_id)[2])}\n" \
+                                          f"Никнейм: {Data(db).get_nick(to_user_id)[2]}\n" \
+                                          f"Количество предупреждений: {Data(db).get_warns(to_user_id)[2]}/3"
+                                    sender(chat_id, msg)
                                 else:
                                     sender(chat_id, "Ссылка указана некорректно.")
 
@@ -805,6 +806,14 @@ while True:
                                     Data(db).start(members, chat_id)
                                     sender(chat_id, "Бот успешно запущен!")
 
+                                elif cmd == 'gay':
+                                    to_user_id = Get(event.object.message, vk_session).to_user_id()
+                                    print(to_user_id)
+                                    if str(to_user_id) == '16715256':
+                                        sender(chat_id, f"Подтверждено! [id{to_user_id}|Пользователь] — гей!")
+                                    else:
+                                        sender(chat_id, f"Опровергнуто! [id{to_user_id}|Пользователь] — не гей!")
+
                                 elif cmd == 'reset' or cmd == 'ресет':
                                     sender(chat_id, 'Технический перезапуск!')
                                     sender(chat_id, 'Загрузка: *.........\n\nПроизводится технический серверный рестарт.')
@@ -833,8 +842,11 @@ while True:
                                     time.sleep(1)
 
                                 elif cmd == 'log':
+
                                     trd = logging.debug('Debug message')
-                                    sender_log(chat_id, trd)
+
+                                    sender(chat_id, classtracker.ClassTracker())
+
                                     # tr = classtracker.ClassTracker()
                                     # # sender(chat_id, tr)
                                     # # sender(chat_id, tr = classtracker.ClassTracker())
@@ -845,8 +857,6 @@ while True:
                                     # # sender(chat_id, tr.stats.print_summary())
                                     # td = tracker.SummaryTracker()
                                     # sender(chat_id, td.print_diff())
-
-
 
                                 elif cmd == 'spec':
                                     to_user_id = Get(event.object.message, vk_session).to_user_id()
