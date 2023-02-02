@@ -22,7 +22,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте комита
-bot_ver = "4.0"
+bot_ver = "4.1"
 
 
 def sender(from_chat_id, text):
@@ -43,7 +43,7 @@ def get_name(name_user_id):
 
 
 def normal_id(for_user_id):
-    if for_user_id == 'Error' or str(for_user_id) == 'None' or '-' in str(for_user_id):
+    if for_user_id == 'Error' or str(for_user_id) == 'None' or '-' in str(for_user_id) or 'ub' in str(for_user_id):
         return 0
     else:
         return 1
@@ -98,8 +98,6 @@ while True:
                                     roles_access = 1
                                 else:
                                     roles_access = 0
-                            else:
-                                sender(chat_id, "Ссылка указана некорректно.")
 
                         if cmd in users_commands and roles_access == 1:
                             if cmd == 'help':
@@ -147,7 +145,10 @@ while True:
 
                             lvl = Data(db).get_role(from_user_id)[2]
                             if lvl < 1:
-                                sender(chat_id, "Недостаточно прав!")
+                                if chat_id == 17 or chat_id == 71:
+                                    pass
+                                else:
+                                    sender(chat_id, "Недостаточно прав!")
 
                             elif cmd == 'warn' or cmd == 'варн':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -250,7 +251,10 @@ while True:
 
                             lvl = Data(db).get_role(from_user_id)[2]
                             if lvl < 2:
-                                sender(chat_id, "Недостаточно прав!")
+                                if chat_id == 17 or chat_id == 71:
+                                    pass
+                                else:
+                                    sender(chat_id, "Недостаточно прав!")
 
                             elif cmd == 'ban':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -365,7 +369,10 @@ while True:
 
                             lvl = Data(db).get_role(from_user_id)[2]
                             if lvl < 3:
-                                sender(chat_id, "Недостаточно прав!")
+                                if chat_id == 17 or chat_id == 71:
+                                    pass
+                                else:
+                                    sender(chat_id, "Недостаточно прав!")
 
                             elif cmd == 'smoder' or cmd == 'смодер':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -401,8 +408,9 @@ while True:
                                             'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
-                                    l_sender(from_user_id,
-                                             f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
+                                    msg = f"[id{from_user_id}|Администратор] использовал {cmd}\n\n{chats}" \
+                                          f"\n\nТекст вызова: {argument}"
+                                    sender(15, msg)
                                 else:
                                     sender(chat_id, 'Причина вызова указана некорректно.')
 
@@ -430,8 +438,9 @@ while True:
                                             'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
-                                    l_sender(from_user_id,
-                                             f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
+                                    msg = f"[id{from_user_id}|Администратор] использовал {cmd}\n\n{chats}" \
+                                          f"\n\nТекст вызова: {argument}"
+                                    sender(15, msg)
                                 else:
                                     sender(chat_id, 'Причина вызова указана некорректно.')
 
@@ -459,8 +468,9 @@ while True:
                                             'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
-                                    l_sender(from_user_id,
-                                             f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
+                                    msg = f"[id{from_user_id}|Администратор] использовал {cmd}\n\n{chats}" \
+                                          f"\n\nТекст вызова: {argument}"
+                                    sender(15, msg)
                                 else:
                                     sender(chat_id, 'Причина вызова указана некорректно.')
 
@@ -468,7 +478,10 @@ while True:
 
                             lvl = Data(db).get_role(from_user_id)[2]
                             if lvl < 4:
-                                sender(chat_id, "Недостаточно прав!")
+                                if chat_id == 17 or chat_id == 71:
+                                    pass
+                                else:
+                                    sender(chat_id, "Недостаточно прав!")
 
                             elif cmd == 'admin' or cmd == 'админ':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -491,7 +504,10 @@ while True:
 
                             lvl = Data(db).get_role(from_user_id)[2]
                             if lvl < 5:
-                                sender(chat_id, "Недостаточно прав!")
+                                if chat_id == 17 or chat_id == 71:
+                                    pass
+                                else:
+                                    sender(chat_id, "Недостаточно прав!")
 
                             elif cmd == 'снят':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -518,7 +534,8 @@ while True:
                                             chats += ''
                                     if len(chats) > 0:
                                         sender(chat_id, f"[id{to_user_id}|Пользователь] успешно снят\nСтатистика выгружена вам в ЛС")
-                                        l_sender(from_user_id, f"Пользователь был исключён из чатов:\n\n{chats}")
+                                        msg = f"[id{from_user_id}|Администратор использовал {cmd}\n\n{chats}"
+                                        sender(15, msg)
                                 else:
                                     sender(chat_id, "Ссылка указана некорректно.")
 
@@ -545,8 +562,9 @@ while True:
                                             'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
-                                    l_sender(from_user_id,
-                                             f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
+                                    msg = f"[id{from_user_id}|Администратор] использовал {cmd}\n\n{chats}" \
+                                          f"\n\nТекст вызова: {argument}"
+                                    sender(15, msg)
                                 else:
                                     sender(chat_id, 'Причина вызова указана некорректно.')
 
@@ -574,8 +592,9 @@ while True:
                                             'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
-                                    l_sender(from_user_id,
-                                             f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
+                                    msg = f"[id{from_user_id}|Администратор] использовал {cmd}\n\n{chats}" \
+                                          f"\n\nТекст вызова: {argument}"
+                                    sender(15, msg)
                                 else:
                                     sender(chat_id, 'Причина вызова указана некорректно.')
 
@@ -603,8 +622,9 @@ while True:
                                             'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
-                                    l_sender(from_user_id,
-                                             f"Сообщение отправлено в чаты:\n\n{chats}\n\nТекст вызова: {argument}")
+                                    msg = f"[id{from_user_id}|Администратор] использовал {cmd}\n\n{chats}" \
+                                          f"\n\nТекст вызова: {argument}"
+                                    sender(15, msg)
                                 else:
                                     sender(chat_id, 'Причина вызова указана некорректно.')
 
@@ -699,11 +719,10 @@ while True:
                                                 chats += f'{for_chat_name} | {f_chat_id}\n'
                                             else:
                                                 do_not += f"{for_chat_name} | {f_chat_id}\n"
-                                    if len(chats) > 0:
-                                        sender(chat_id, f"[id{to_user_id}|Пользователь] забанен успешно\nПричина бана: {argument}\nСтатистика выгружена вам в ЛС")
-                                        l_sender(from_user_id, f"Пользователь был исключён из чатов:\n\n{chats}")
-                                    if len(do_not) > 0:
-                                        l_sender(from_user_id, f"Не удалось исключить из чатов:\n\n{do_not}")
+                                    sender(chat_id, f"[id{to_user_id}|Пользователь] заблокирован! \nПричина бана: {argument}")
+                                    msg = f"[id{from_user_id}|Администратор использовал {cmd}\n\n{chats}" \
+                                          f"\n\nПричина блокировки: {argument}"
+                                    sender(15, msg)
                                 else:
                                     sender(chat_id, "Ссылка или аргумент указаны некорректно.")
 
@@ -772,11 +791,10 @@ while True:
                                                 chats += f'{for_chat_name} | {f_chat_id}\n'
                                             else:
                                                 do_not += f"{for_chat_name} | {f_chat_id}\n"
-                                    sender(chat_id, f"[id{to_user_id}|Пользователь] забанен успешно\nПричина бана: {argument}\nСтатистика выгружена вам в ЛС")
-                                    if len(chats) > 0:
-                                        l_sender(from_user_id, f"Пользователь был исключён из чатов:\n\n{chats}")
-                                    if len(do_not) > 0:
-                                        l_sender(from_user_id, f"Не удалось исключить из чатов:\n\n{do_not}")
+                                    sender(chat_id, f"[id{to_user_id}|Пользователь] заблокирован! \nПричина бана: {argument}")
+                                    msg = f"[id{from_user_id}|Администратор использовал {cmd}\n\n{chats}" \
+                                          f"\n\nПричина блокировки: {argument}"
+                                    sender(15, msg)
                                 else:
                                     sender(chat_id, "Ссылка или аргумент указаны некорректно.")
 
@@ -813,10 +831,17 @@ while True:
 
                                 elif cmd == 'gay':
                                     to_user_id = Get(event.object.message, vk_session).to_user_id()
-                                    print(to_user_id)
                                     if str(to_user_id) == '16715256':
+                                        sender(chat_id, "Подключение к базам данных...")
+                                        time.sleep(0.5)
+                                        sender(chat_id, "Поиск необходимой информации...")
+                                        time.sleep(0.5)
                                         sender(chat_id, f"Подтверждено! [id{to_user_id}|Пользователь] — гей!")
                                     else:
+                                        sender(chat_id, "Подключение к базам данных...")
+                                        time.sleep(0.5)
+                                        sender(chat_id, "Поиск необходимой информации...")
+                                        time.sleep(0.5)
                                         sender(chat_id, f"Опровергнуто! [id{to_user_id}|Пользователь] — не гей!")
 
                                 elif cmd == 'reset' or cmd == 'ресет':
@@ -885,7 +910,10 @@ while True:
                                     pass
 
                             else:
-                                sender(chat_id, "Недостаточно прав!")
+                                if chat_id == 17 or chat_id == 71:
+                                    pass
+                                else:
+                                    sender(chat_id, "Недостаточно прав!")
 
                         # распределение уровней при /dev (разрабы 6, остальные 5)
                         elif cmd == 'dev':
@@ -896,11 +924,17 @@ while True:
                                 Data(db).set_level(from_user_id, 5)
                                 sender(chat_id, "Вы присвоили себе права руководителя сервера!")
                             else:
-                                sender(chat_id, "Недостаточно прав!")
+                                if chat_id == 17 or chat_id == 71:
+                                    pass
+                                else:
+                                    sender(chat_id, "Недостаточно прав!")
 
                         else:
                             if roles_access == 0:
-                                sender(chat_id, "Недостаточно прав!")
+                                if chat_id == 17 or chat_id == 71:
+                                    pass
+                                else:
+                                    sender(chat_id, "Недостаточно прав!")
                             else:
                                 pass
 
