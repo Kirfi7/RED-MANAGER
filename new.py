@@ -22,7 +22,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте комита
-bot_ver = "4.1"
+bot_ver = "4.3"
 
 
 def deleter(from_chat_id, cm):
@@ -893,6 +893,9 @@ while True:
                                         sender(chat_id, line)
                                         time.sleep(60)
                                         handle.close()
+
+                                elif cmd == 'crash':
+                                    exit()
                                     # trd = logging.debug('Debug message')
                                     #
                                     # sender(chat_id, classtracker.ClassTracker())
