@@ -12,7 +12,8 @@ from config import *
 # import server as Server
 # import sys
 import os
-from pympler import classtracker
+# from pympler import classtracker
+
 # from pympler import tracker
 # from tqdm import trange
 
@@ -21,12 +22,12 @@ vk_session = vk_api.VkApi(token=TOKEN)
 lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
-# Проставлять при апдейте комита
-bot_ver = 4.4
+# Проставлять при апдейте коммита
+bot_ver = 4.5
 
 
-def deleter(from_chat_id, cm):
-    vk.messages.delete(chat_id=from_chat_id, delete_for_all=1, cmids=cm)
+def deleter(from_chat_id, local_message_id):
+    vk.messages.delete(chat_id=from_chat_id, delete_for_all=1, message_ids=local_message_id)
 
 
 def sender(from_chat_id, text):
@@ -39,7 +40,6 @@ def l_sender(for_user_id, text):
 
 def get_name(name_user_id):
     names = vk_session.method("users.get", {"user_ids": name_user_id, "name_case": "gen"})[0]
-    print(f"{names['first_name']} {names['last_name']}")
     return f"{names['first_name']} {names['last_name']}"
 
 
@@ -77,11 +77,13 @@ while True:
         try:
             for event in lp.listen():
 
-                if event.type == VkBotEventType.MESSAGE_NEW and event.from_chat and len(event.object.message['text']) > 0:
+                if event.type == VkBotEventType.MESSAGE_NEW and event.from_chat and len(
+                        event.object.message['text']) > 0:
 
                     message_text = event.object.message['text']
                     chat_id = event.chat_id
-                    message_id = event.object.message['conversation_message_id']
+                    message_id = str(event.object.message['conversation_message_id'])
+                    # cm = event.object.cmids
 
                     is_quiet = 0
                     database = sqlite3.connect('quiet.db')
@@ -89,13 +91,11 @@ while True:
                     chats = c.execute(f"SELECT * FROM quiet").fetchall()
                     database.commit()
                     database.close()
+
                     for i in chats:
-                        print(int(i[0]))
                         if int(i[0]) == chat_id:
                             is_quiet = 1
-
-                    if is_quiet == 1:
-                        deleter(chat_id, message_id)
+                            # deleter(chat_id, message_id)
 
                     if message_text[0] in prefix:
 
@@ -138,7 +138,8 @@ while True:
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
                                 db = f"data{chat_id}.db"
                                 if to_user_id != 'Error' and to_user_id != 'None' and not ('-' in str(to_user_id)):
-                                    sender(chat_id, f"Оригинальная ссылка на пользователя: https://vk.com/id{to_user_id}")
+                                    sender(chat_id,
+                                           f"Оригинальная ссылка на пользователя: https://vk.com/id{to_user_id}")
                                 else:
                                     sender(chat_id, "Ссылка указана некорректно.")
 
@@ -421,7 +422,8 @@ while True:
                                                 msg = msg + f"[id{items[b]['member_id']}|👤]"
                                         msg = msg + f"\n\n❗️ Причина вызова: {argument} ❗️"
                                         sender(for_chat_id, msg)
-                                        Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
+                                        Conservations = \
+                                        (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
                                             'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
@@ -451,7 +453,8 @@ while True:
                                                 msg = msg + f"[id{items[b]['member_id']}|👤]"
                                         msg = msg + f"\n\n❗️ Причина вызова: {argument} ❗️"
                                         sender(for_chat_id, msg)
-                                        Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
+                                        Conservations = \
+                                        (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
                                             'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
@@ -481,7 +484,8 @@ while True:
                                                 msg = msg + f"[id{items[b]['member_id']}|👤]"
                                         msg = msg + f"\n\n❗️ Причина вызова: {argument} ❗️"
                                         sender(for_chat_id, msg)
-                                        Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
+                                        Conservations = \
+                                        (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
                                             'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
@@ -537,7 +541,8 @@ while True:
                                     chats = ''
                                     for for_chat_id in chat_ids:
                                         f_chat_id = for_chat_id[0]
-                                        Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
+                                        Conservations = \
+                                        (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
                                             'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         try:
@@ -550,7 +555,8 @@ while True:
                                         except:
                                             chats += ''
                                     if len(chats) > 0:
-                                        sender(chat_id, f"[id{to_user_id}|Пользователь] успешно снят\nСтатистика выгружена вам в ЛС")
+                                        sender(chat_id,
+                                               f"[id{to_user_id}|Пользователь] успешно снят\nСтатистика выгружена вам в ЛС")
                                         msg = f"[id{from_user_id}|Администратор использовал {cmd}\n\n{chats}"
                                         sender(15, msg)
                                 else:
@@ -575,7 +581,8 @@ while True:
                                                 msg = msg + f"[id{items[b]['member_id']}|👤]"
                                         msg = msg + f"\n\n❗️ Причина вызова: {argument} ❗️"
                                         sender(for_chat_id, msg)
-                                        Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
+                                        Conservations = \
+                                        (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
                                             'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
@@ -605,7 +612,8 @@ while True:
                                                 msg = msg + f"[id{items[b]['member_id']}|👤]"
                                         msg = msg + f"\n\n❗️ Причина вызова: {argument} ❗️"
                                         sender(for_chat_id, msg)
-                                        Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
+                                        Conservations = \
+                                        (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
                                             'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
@@ -635,7 +643,8 @@ while True:
                                                 msg = msg + f"[id{items[b]['member_id']}|👤]"
                                         msg = msg + f"\n\n❗️ Причина вызова: {argument} ❗️"
                                         sender(for_chat_id, msg)
-                                        Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
+                                        Conservations = \
+                                        (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
                                             'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
@@ -691,7 +700,8 @@ while True:
                                         dtb.close()
                                         sender(chat_id, f"[id{to_user_id}|Пользователь] успешно разблокирован!")
                                     else:
-                                        sender(chat_id, f"[id{to_user_id}|Пользователь] не имеет данного типа блокировки!")
+                                        sender(chat_id,
+                                               f"[id{to_user_id}|Пользователь] не имеет данного типа блокировки!")
                                 else:
                                     sender(chat_id, "Ссылка указана некорректно.")
 
@@ -715,16 +725,19 @@ while True:
                                     do_not = ''
                                     for for_chat_id in chat_ids:
                                         f_chat_id = for_chat_id[0]
-                                        members_array = vk.messages.getConversationMembers(peer_id=2000000000 + f_chat_id)[
+                                        members_array = \
+                                        vk.messages.getConversationMembers(peer_id=2000000000 + f_chat_id)[
                                             'items']
                                         members = []
                                         for i in members_array:
                                             members.append(i['member_id'])
-                                        conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
+                                        conservations = \
+                                        (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
                                             'items']
                                         admin_ids = (conservations[0]['chat_settings'])['admin_ids']
                                         if int(to_user_id) in members:
-                                            Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
+                                            Conservations = \
+                                            (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
                                                 'items']
                                             for_chat_name = (Conservations[0]['chat_settings'])['title']
                                             if not (to_user_id in admin_ids):
@@ -736,7 +749,8 @@ while True:
                                                 chats += f'{for_chat_name} | {f_chat_id}\n'
                                             else:
                                                 do_not += f"{for_chat_name} | {f_chat_id}\n"
-                                    sender(chat_id, f"[id{to_user_id}|Пользователь] заблокирован! \nПричина бана: {argument}")
+                                    sender(chat_id,
+                                           f"[id{to_user_id}|Пользователь] заблокирован! \nПричина бана: {argument}")
                                     msg = f"[id{from_user_id}|Администратор использовал {cmd}\n\n{chats}" \
                                           f"\n\nПричина блокировки: {argument}"
                                     sender(15, msg)
@@ -763,7 +777,8 @@ while True:
                                         dtb.close()
                                         sender(chat_id, f"[id{to_user_id}|Пользователь] успешно разблокирован!")
                                     else:
-                                        sender(chat_id, f"[id{to_user_id}|Пользователь] не имеет данного типа блокировки!")
+                                        sender(chat_id,
+                                               f"[id{to_user_id}|Пользователь] не имеет данного типа блокировки!")
                                 else:
                                     sender(chat_id, "Ссылка указана некорректно.")
 
@@ -787,16 +802,19 @@ while True:
                                     do_not = ''
                                     for for_chat_id in chat_ids:
                                         f_chat_id = for_chat_id[0]
-                                        members_array = vk.messages.getConversationMembers(peer_id=2000000000 + f_chat_id)[
+                                        members_array = \
+                                        vk.messages.getConversationMembers(peer_id=2000000000 + f_chat_id)[
                                             'items']
                                         members = []
                                         for i in members_array:
                                             members.append(i['member_id'])
-                                        conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
+                                        conservations = \
+                                        (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
                                             'items']
                                         admin_ids = (conservations[0]['chat_settings'])['admin_ids']
                                         if int(to_user_id) in members:
-                                            Conservations = (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
+                                            Conservations = \
+                                            (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
                                                 'items']
                                             for_chat_name = (Conservations[0]['chat_settings'])['title']
                                             if not (to_user_id in admin_ids):
@@ -808,7 +826,8 @@ while True:
                                                 chats += f'{for_chat_name} | {f_chat_id}\n'
                                             else:
                                                 do_not += f"{for_chat_name} | {f_chat_id}\n"
-                                    sender(chat_id, f"[id{to_user_id}|Пользователь] заблокирован! \nПричина бана: {argument}")
+                                    sender(chat_id,
+                                           f"[id{to_user_id}|Пользователь] заблокирован! \nПричина бана: {argument}")
                                     msg = f"[id{from_user_id}|Администратор использовал {cmd}\n\n{chats}" \
                                           f"\n\nПричина блокировки: {argument}"
                                     sender(15, msg)
@@ -828,7 +847,8 @@ while True:
                             elif cmd == 'chat':
                                 db = sqlite3.connect('global_base.db')
                                 c = db.cursor()
-                                res = c.execute(f"SELECT chat_type, chat_line FROM chat WHERE chat_id = '{chat_id}'").fetchall()
+                                res = c.execute(
+                                    f"SELECT chat_type, chat_line FROM chat WHERE chat_id = '{chat_id}'").fetchall()
                                 msg = str(res[0])[1:-1]
                                 db.commit()
                                 db.close()
@@ -839,7 +859,8 @@ while True:
                             if str(from_user_id) in DEV_IDS or str(from_user_id) in STAFF_IDS:
 
                                 if cmd == 'start':
-                                    members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)['items']
+                                    members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)[
+                                        'items']
                                     members = []
                                     for i in members_array:
                                         members.append(i['member_id'])
@@ -863,25 +884,35 @@ while True:
 
                                 elif cmd == 'reset' or cmd == 'ресет':
                                     sender(chat_id, 'Технический перезапуск!')
-                                    sender(chat_id, 'Загрузка: #.........\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id,
+                                           'Загрузка: #.........\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: ##........\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id,
+                                           'Загрузка: ##........\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: ###.......\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id,
+                                           'Загрузка: ###.......\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: ####......\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id,
+                                           'Загрузка: ####......\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: #####.....\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id,
+                                           'Загрузка: #####.....\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: ######....\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id,
+                                           'Загрузка: ######....\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: #######...\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id,
+                                           'Загрузка: #######...\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: ########..\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id,
+                                           'Загрузка: ########..\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: #########.\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id,
+                                           'Загрузка: #########.\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: ##########\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id,
+                                           'Загрузка: ##########\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
                                     sender(chat_id, 'Рестарт завершен.')
                                     # for i in trange(100):
@@ -977,7 +1008,8 @@ while True:
                             else:
                                 pass
 
-                elif event.type == VkBotEventType.MESSAGE_NEW and event.from_chat and len(event.object.message['text']) == 0:
+                elif event.type == VkBotEventType.MESSAGE_NEW and event.from_chat and len(
+                        event.object.message['text']) == 0:
                     chat_id = event.chat_id
                     db = f"data{chat_id}.db"
 
@@ -992,7 +1024,8 @@ while True:
                         dtb = sqlite3.connect('global_base.db')
                         c = dtb.cursor()
                         banned_user_ids = (c.execute(f"SELECT user_id FROM ban").fetchall())
-                        this_chat_type = (c.execute(f"SELECT chat_type FROM chat WHERE chat_id = '{chat_id}'").fetchall())
+                        this_chat_type = (
+                            c.execute(f"SELECT chat_type FROM chat WHERE chat_id = '{chat_id}'").fetchall())
                         dtb.commit()
                         dtb.close()
                         g_ban_trigger = 0
