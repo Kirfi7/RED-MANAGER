@@ -7,9 +7,9 @@ import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from models import Get, Data
 from config import *
-from pympler import classtracker
-from pympler import tracker
-from tqdm import trange
+# from pympler import classtracker
+# from pympler import tracker
+# from tqdm import trange
 
 
 vk_session = vk_api.VkApi(token=TOKEN)
