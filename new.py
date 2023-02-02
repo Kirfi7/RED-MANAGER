@@ -33,9 +33,6 @@ def l_sender(for_user_id, text):
     vk.messages.send(user_id=for_user_id, message=text, random_id=0)
 
 
-# def log_sender(from_chat_id, )
-
-
 def get_name(name_user_id):
     names = vk_session.method("users.get", {"user_ids": name_user_id, "name_case": "gen"})[0]
     print(f"{names['first_name']} {names['last_name']}")
@@ -70,6 +67,7 @@ def role(level):
     else:
         return "Пользователь"
 
+
 while True:
     try:
         try:
@@ -86,6 +84,7 @@ while True:
                         from_user_id = event.object.message['from_id']
                         cmd = ((message_text.split()[0])[1:]).lower()
                         roles_access = 1
+                        message_id = vk.Get
 
                         if cmd in to_commands:
 
