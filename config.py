@@ -27,7 +27,7 @@ sen_admin_commands = ['admin', 'админ']
 special_commands = ['azov', 'gzov', 'lzov', 'line', 'type', 'sunbanpl', 'sbanpl', 'sunban', 'sban', 'гсопг', 'гсгосс', 'sadmin', 'садмин', 'снят', 'chat']
 
 # команды разработчиков
-dev_commands = ['spec', 'start', 'reset', 'ресет', 'log', 'gay']
+dev_commands = ['spec', 'start', 'reset', 'ресет', 'log', 'gay', 'log2']
 
 # команды с тригером на иерархию ролей
 to_commands = ['warn', 'варн', 'unwarn', 'кик', 'kick', 'ban', 'rrole', 'removerole', 'moder', 'модер', 'admin', 'админ', 'sbanpl', 'sban', 'sadmin', 'садмин', 'снят', 'gay']

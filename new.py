@@ -7,6 +7,11 @@ import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from models import Get, Data
 from config import *
+# from PyQt5 import QtWidgets
+#
+# import server as Server
+# import sys
+import os
 from pympler import classtracker
 # from pympler import tracker
 # from tqdm import trange
@@ -816,25 +821,25 @@ while True:
 
                                 elif cmd == 'reset' or cmd == 'ресет':
                                     sender(chat_id, 'Технический перезапуск!')
-                                    sender(chat_id, 'Загрузка: *.........\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id, 'Загрузка: #.........\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: **........\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id, 'Загрузка: ##........\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: ***.......\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id, 'Загрузка: ###.......\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: ****......\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id, 'Загрузка: ####......\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: *****.....\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id, 'Загрузка: #####.....\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: ******....\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id, 'Загрузка: ######....\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: *******...\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id, 'Загрузка: #######...\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: ********..\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id, 'Загрузка: ########..\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: *********.\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id, 'Загрузка: #########.\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
-                                    sender(chat_id, 'Загрузка: **********\n\nПроизводится технический серверный рестарт.')
+                                    sender(chat_id, 'Загрузка: ##########\n\nПроизводится технический серверный рестарт.')
                                     time.sleep(0.5)
                                     sender(chat_id, 'Рестарт завершен.')
                                     # for i in trange(100):
@@ -842,10 +847,21 @@ while True:
                                     time.sleep(1)
 
                                 elif cmd == 'log':
-
-                                    trd = logging.debug('Debug message')
-
-                                    sender(chat_id, classtracker.ClassTracker())
+                                    # pass
+                                    handle = open("mylog.txt", "r")
+                                    for line in handle:
+                                        sender(chat_id, line)
+                                        time.sleep(60)
+                                        handle.close()
+                                    # trd = logging.debug('Debug message')
+                                    #
+                                    # sender(chat_id, classtracker.ClassTracker())
+                                elif cmd == 'log2':
+                                    handle = open("mylog.txt", "r")
+                                    for line in handle:
+                                        sender(chat_id, str(line))
+                                        time.sleep(60)
+                                        handle.close()
 
                                     # tr = classtracker.ClassTracker()
                                     # # sender(chat_id, tr)
@@ -930,4 +946,11 @@ while True:
             print("\n Переподключение к серверам ВК \n")
             time.sleep(3)
     except Exception:
+        try:
+            os.mkdir('Log')
+        except FileExistsError:
+            pass
+        logging.basicConfig(filename='mylog.log', filemode='a', format='%(asctime)s - %(message)s',
+                            datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG)
+
         pass
