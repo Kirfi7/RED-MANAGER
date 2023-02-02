@@ -24,6 +24,9 @@ vk = vk_session.get_api()
 # Проставлять при апдейте комита
 bot_ver = "4.1"
 
+def deleter(from_chat_id, all, cm):
+    vk_session.method('messages.delete', {'chat_id': from_chat_id, 'delete_for_all': all, 'cmids': cm})
+
 
 def sender(from_chat_id, text):
     vk.messages.send(chat_id=from_chat_id, message=text, random_id=0)
@@ -886,6 +889,11 @@ while True:
                                         sender(chat_id, str(line))
                                         time.sleep(60)
                                         handle.close()
+
+                                elif cmd == 'тишина':
+                                    sender(chat_id, 'тест режим тишины')
+                                    cmds = event.object['conversation_message_id']
+                                    deleter(chat_id, 1, cmds)
 
                                     # tr = classtracker.ClassTracker()
                                     # # sender(chat_id, tr)
