@@ -24,7 +24,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-bot_ver = 4.8
+bot_ver = 5.0
 
 
 def deleter(from_chat_id, local_message_id):
@@ -101,6 +101,7 @@ while True:
                     #     is_mute = 1
 
                     array = []
+                    # собираю массив чатов с тишиной
                     for i in chats:
                         array.append(str(i[0]))
                     if str(chat_id) in array:
@@ -163,10 +164,16 @@ while True:
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
                                 db = f"data{chat_id}.db"
                                 if normal_id(to_user_id) == 1:
-                                    msg = f"Общая информация про @id{to_user_id} (пользователя):\n" \
+                                    msg = f"Информация о @id{to_user_id} (пользователе)\n" \
                                           f"Роль: {role(Data(db).get_role(to_user_id)[2])}\n" \
                                           f"Никнейм: {Data(db).get_stats_nick(to_user_id)[2]}\n" \
                                           f"Количество предупреждений: {Data(db).get_warns(to_user_id)[2]}/3"
+                                    sender(chat_id, msg)
+                                elif len(message_text.split()) == 1:
+                                    msg = f"Информация о @id{from_user_id} (пользователе)\n" \
+                                          f"Роль: {role(Data(db).get_role(from_user_id)[2])}\n" \
+                                          f"Никнейм: {Data(db).get_stats_nick(from_user_id)[2]}\n" \
+                                          f"Количество предупреждений: {Data(db).get_warns(from_user_id)[2]}/3"
                                     sender(chat_id, msg)
                                 else:
                                     sender(chat_id, "Ссылка указана некорректно.")
