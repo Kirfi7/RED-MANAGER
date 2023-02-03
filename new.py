@@ -951,11 +951,11 @@ while True:
                                 elif cmd == 'log5':
                                     handle = open("mylog.log", "r")
                                     iii = 300
-                                    while i>0:
+                                    while iii>0:
                                         for line in handle:
                                             sender(chat_id, line)
                                             time.sleep(0.5)
-                                            i-=1
+                                            iii-=1
                                             handle.close()
 
                                 elif cmd == 'тишина':
