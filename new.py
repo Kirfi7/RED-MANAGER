@@ -24,7 +24,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-bot_ver = 4.7
+bot_ver = 4.8
 
 
 def deleter(from_chat_id, local_message_id):
@@ -911,7 +911,7 @@ while True:
 
                                 elif cmd == 'log':
                                     # pass
-                                    handle = open("mylog.txt", "r")
+                                    handle = open("mylog.log", "r")
                                     for line in handle:
                                         sender(chat_id, line)
                                         time.sleep(60)
