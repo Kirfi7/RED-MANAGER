@@ -12,6 +12,7 @@ from config import *
 # import server as Server
 # import sys
 import os
+
 # from pympler import classtracker
 
 # from pympler import tracker
@@ -23,11 +24,12 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-bot_ver = 4.5
+bot_ver = 4.7
 
 
 def deleter(from_chat_id, local_message_id):
-    vk.messages.delete(chat_id=from_chat_id, delete_for_all=1, message_ids=local_message_id)
+    vk.messages.delete(chat_id=from_chat_id, delete_for_all=1, cmids=local_message_id,
+                       peer_id=2000000000 + from_chat_id)
 
 
 def sender(from_chat_id, text):
@@ -80,27 +82,37 @@ while True:
                 if event.type == VkBotEventType.MESSAGE_NEW and event.from_chat and len(
                         event.object.message['text']) > 0:
 
+                    from_user_id = event.object.message['from_id']
                     message_text = event.object.message['text']
                     chat_id = event.chat_id
+                    db = f"data{chat_id}.db"
                     message_id = str(event.object.message['conversation_message_id'])
-                    # cm = event.object.cmids
-
                     is_quiet = 0
                     database = sqlite3.connect('quiet.db')
                     c = database.cursor()
                     chats = c.execute(f"SELECT * FROM quiet").fetchall()
                     database.commit()
                     database.close()
+                    lvl = int(Data(db).get_role(from_user_id)[2])
+                    is_quiet_del = 0
 
+                    # is_mute = 0
+                    # if Data(db).is_muted(from_user_id)[2] == 1:
+                    #     is_mute = 1
+
+                    array = []
                     for i in chats:
-                        if int(i[0]) == chat_id:
-                            is_quiet = 1
-                            # deleter(chat_id, message_id)
+                        array.append(str(i[0]))
+                    if str(chat_id) in array:
+                        is_quiet = 1
+                        if lvl == 0:
+                            is_quiet_del = 1
+                            deleter(chat_id, message_id)
+                        else:
+                            pass
 
-                    if message_text[0] in prefix:
+                    if message_text[0] in prefix and is_quiet_del == 0:
 
-                        db = f"data{chat_id}.db"
-                        from_user_id = event.object.message['from_id']
                         cmd = ((message_text.split()[0])[1:]).lower()
                         roles_access = 1
 
@@ -151,9 +163,9 @@ while True:
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
                                 db = f"data{chat_id}.db"
                                 if normal_id(to_user_id) == 1:
-                                    msg = f"Общая информация про [id{to_user_id}|пользователя]:\n" \
+                                    msg = f"Общая информация про @id{to_user_id} (пользователя):\n" \
                                           f"Роль: {role(Data(db).get_role(to_user_id)[2])}\n" \
-                                          f"Никнейм: {Data(db).get_nick(to_user_id)[2]}\n" \
+                                          f"Никнейм: {Data(db).get_stats_nick(to_user_id)[2]}\n" \
                                           f"Количество предупреждений: {Data(db).get_warns(to_user_id)[2]}/3"
                                     sender(chat_id, msg)
                                 else:
@@ -251,7 +263,7 @@ while True:
                             elif cmd == 'getacc':
                                 argument = Get(event.object.message, vk_session).single_argument()
                                 if normal_argument(argument) == 1:
-                                    sender(chat_id, f"Ссылка на пользователя:\n{Data(db).get_acc(argument)}")
+                                    sender(chat_id, f"Ссылка на пользователя:\n{Data(db).get_acc(argument)[2]}")
                                 else:
                                     sender(chat_id, "Аргумент указан некорректно.")
 
@@ -423,8 +435,8 @@ while True:
                                         msg = msg + f"\n\n❗️ Причина вызова: {argument} ❗️"
                                         sender(for_chat_id, msg)
                                         Conservations = \
-                                        (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
-                                            'items']
+                                            (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
+                                                'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
                                     msg = f"[id{from_user_id}|Администратор] использовал {cmd}\n\n{chats}" \
@@ -454,8 +466,8 @@ while True:
                                         msg = msg + f"\n\n❗️ Причина вызова: {argument} ❗️"
                                         sender(for_chat_id, msg)
                                         Conservations = \
-                                        (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
-                                            'items']
+                                            (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
+                                                'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
                                     msg = f"[id{from_user_id}|Администратор] использовал {cmd}\n\n{chats}" \
@@ -485,8 +497,8 @@ while True:
                                         msg = msg + f"\n\n❗️ Причина вызова: {argument} ❗️"
                                         sender(for_chat_id, msg)
                                         Conservations = \
-                                        (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
-                                            'items']
+                                            (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
+                                                'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
                                     msg = f"[id{from_user_id}|Администратор] использовал {cmd}\n\n{chats}" \
@@ -542,8 +554,8 @@ while True:
                                     for for_chat_id in chat_ids:
                                         f_chat_id = for_chat_id[0]
                                         Conservations = \
-                                        (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
-                                            'items']
+                                            (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
+                                                'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         try:
                                             Data(f"data{f_chat_id}.db").user_kick(to_user_id)
@@ -582,8 +594,8 @@ while True:
                                         msg = msg + f"\n\n❗️ Причина вызова: {argument} ❗️"
                                         sender(for_chat_id, msg)
                                         Conservations = \
-                                        (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
-                                            'items']
+                                            (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
+                                                'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
                                     msg = f"[id{from_user_id}|Администратор] использовал {cmd}\n\n{chats}" \
@@ -613,8 +625,8 @@ while True:
                                         msg = msg + f"\n\n❗️ Причина вызова: {argument} ❗️"
                                         sender(for_chat_id, msg)
                                         Conservations = \
-                                        (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
-                                            'items']
+                                            (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
+                                                'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
                                     msg = f"[id{from_user_id}|Администратор] использовал {cmd}\n\n{chats}" \
@@ -644,8 +656,8 @@ while True:
                                         msg = msg + f"\n\n❗️ Причина вызова: {argument} ❗️"
                                         sender(for_chat_id, msg)
                                         Conservations = \
-                                        (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
-                                            'items']
+                                            (vk.messages.getConversationsById(peer_ids=2000000000 + for_chat_id))[
+                                                'items']
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         chats += f'{for_chat_name} | {for_chat_id}\n'
                                     msg = f"[id{from_user_id}|Администратор] использовал {cmd}\n\n{chats}" \
@@ -725,30 +737,19 @@ while True:
                                     do_not = ''
                                     for for_chat_id in chat_ids:
                                         f_chat_id = for_chat_id[0]
-                                        members_array = \
-                                        vk.messages.getConversationMembers(peer_id=2000000000 + f_chat_id)[
-                                            'items']
-                                        members = []
-                                        for i in members_array:
-                                            members.append(i['member_id'])
-                                        conservations = \
-                                        (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
-                                            'items']
-                                        admin_ids = (conservations[0]['chat_settings'])['admin_ids']
-                                        if int(to_user_id) in members:
-                                            Conservations = \
+                                        Conservations = \
                                             (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
                                                 'items']
-                                            for_chat_name = (Conservations[0]['chat_settings'])['title']
-                                            if not (to_user_id in admin_ids):
-                                                vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
-                                                msg = f"[id{from_user_id}|Администратор] забанил " \
-                                                      f"[id{to_user_id}|пользователя] во всех беседах сервера." \
-                                                      f"\n Причина: {argument}."
-                                                sender(f_chat_id, msg)
-                                                chats += f'{for_chat_name} | {f_chat_id}\n'
-                                            else:
-                                                do_not += f"{for_chat_name} | {f_chat_id}\n"
+                                        for_chat_name = (Conservations[0]['chat_settings'])['title']
+                                        try:
+                                            vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
+                                            msg = f"[id{from_user_id}|Администратор] забанил " \
+                                                  f"[id{to_user_id}|пользователя] во всех беседах сервера." \
+                                                  f"\n Причина: {argument}."
+                                            sender(f_chat_id, msg)
+                                            chats += f'{for_chat_name} | {f_chat_id}\n'
+                                        except:
+                                            pass
                                     sender(chat_id,
                                            f"[id{to_user_id}|Пользователь] заблокирован! \nПричина бана: {argument}")
                                     msg = f"[id{from_user_id}|Администратор использовал {cmd}\n\n{chats}" \
@@ -795,37 +796,26 @@ while True:
                                     '{argument}',
                                     'No'
                                     )""")
-                                    chat_ids = (c.execute(f"SELECT chat_id FROM chat").fetchall())
+                                    chat_ids = (c.execute(f"SELECT chat_id FROM chat WHERE chat_type = 'No'").fetchall())
                                     db.commit()
                                     db.close()
                                     chats = ''
                                     do_not = ''
                                     for for_chat_id in chat_ids:
                                         f_chat_id = for_chat_id[0]
-                                        members_array = \
-                                        vk.messages.getConversationMembers(peer_id=2000000000 + f_chat_id)[
-                                            'items']
-                                        members = []
-                                        for i in members_array:
-                                            members.append(i['member_id'])
-                                        conservations = \
-                                        (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
-                                            'items']
-                                        admin_ids = (conservations[0]['chat_settings'])['admin_ids']
-                                        if int(to_user_id) in members:
-                                            Conservations = \
+                                        Conservations = \
                                             (vk.messages.getConversationsById(peer_ids=2000000000 + f_chat_id))[
                                                 'items']
-                                            for_chat_name = (Conservations[0]['chat_settings'])['title']
-                                            if not (to_user_id in admin_ids):
-                                                vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
-                                                msg = f"[id{from_user_id}|Администратор] забанил " \
-                                                      f"[id{to_user_id}|пользователя] во всех беседах сервера." \
-                                                      f"\n Причина: {argument}."
-                                                sender(f_chat_id, msg)
-                                                chats += f'{for_chat_name} | {f_chat_id}\n'
-                                            else:
-                                                do_not += f"{for_chat_name} | {f_chat_id}\n"
+                                        for_chat_name = (Conservations[0]['chat_settings'])['title']
+                                        try:
+                                            vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
+                                            msg = f"[id{from_user_id}|Администратор] забанил " \
+                                                  f"[id{to_user_id}|пользователя] во всех беседах сервера." \
+                                                  f"\n Причина: {argument}."
+                                            sender(f_chat_id, msg)
+                                            chats += f'{for_chat_name} | {f_chat_id}\n'
+                                        except:
+                                            pass
                                     sender(chat_id,
                                            f"[id{to_user_id}|Пользователь] заблокирован! \nПричина бана: {argument}")
                                     msg = f"[id{from_user_id}|Администратор использовал {cmd}\n\n{chats}" \
@@ -940,7 +930,6 @@ while True:
                                         handle.close()
 
                                 elif cmd == 'тишина':
-                                    print(is_quiet)
                                     if is_quiet == 1:
                                         datab = sqlite3.connect('quiet.db')
                                         c = datab.cursor()
@@ -1023,16 +1012,20 @@ while True:
                     if chat_event == 'chat_invite_user':
                         dtb = sqlite3.connect('global_base.db')
                         c = dtb.cursor()
-                        banned_user_ids = (c.execute(f"SELECT user_id FROM ban").fetchall())
+                        banned_user_ids = (c.execute(f"SELECT user_id, ban_type FROM ban").fetchall())
                         this_chat_type = (
-                            c.execute(f"SELECT chat_type FROM chat WHERE chat_id = '{chat_id}'").fetchall())
+                            c.execute(f"SELECT chat_type FROM chat WHERE chat_id = '{chat_id}'").fetchone())[0]
+                        if this_chat_type != 'ms':
+                            c_type = 'No'
+                        else:
+                            c_type = 'Pl'
                         dtb.commit()
                         dtb.close()
-                        g_ban_trigger = 0
+                        g_ban_trigger = ''
                         for i in banned_user_ids:
                             if int(i[0]) == int(action_user_id):
-                                g_ban_trigger = 1
-                        if Data(db).get_ban(action_user_id)[2] == 0 and g_ban_trigger == 0:
+                                g_ban_trigger = i[1]
+                        if Data(db).get_ban(action_user_id)[2] == 0 and g_ban_trigger != c_type:
                             Data(db).new_user(action_user_id)
                         else:
                             sender(chat_id, f"[id{action_user_id}|Пользователь] заблокирован в этом чате!")
@@ -1051,6 +1044,7 @@ while True:
         except requests.exceptions.ReadTimeout:
             print("\n Переподключение к серверам ВК \n")
             time.sleep(3)
+
     except Exception:
         try:
             os.mkdir('Log')

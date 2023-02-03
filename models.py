@@ -328,5 +328,25 @@ class Data:
 
     def full_get_ban(self, to_user_id):
         result = self.c.execute(f"SELECT * FROM ban WHERE user_id = '{to_user_id}'").fetchall()[0]
-        slovar = {'admin_id': f'{result[1]}', 'ban_reason': f'{result[3]}', 'ban_date': f'{result[2]}'}
-        return self.conn.commit(), self.conn.close(), slovar
+        dictionary = {'admin_id': f'{result[1]}', 'ban_reason': f'{result[3]}', 'ban_date': f'{result[2]}'}
+        return self.conn.commit(), self.conn.close(), dictionary
+
+    def is_muted(self, to_user_id):
+        try:
+            result = self.c.execute(f"SELECT is_mute FROM users WHERE user_id = '{to_user_id}'").fetchone()
+            if len(result) == 1:
+                return self.conn.commit(), self.conn.close(), 1
+            else:
+                return self.conn.commit(), self.conn.close(), 0
+        except:
+            return self.conn.commit(), self.conn.close(), 0
+
+    def get_stats_nick(self, to_user_id):
+        result = self.c.execute(f"SELECT nick_name FROM users WHERE user_id = '{to_user_id}'")
+        try:
+            nick_name = result.fetchone()[0]
+            if nick_name == 'Нет' or nick_name == 'None' or nick_name == 'Error' or nick_name == '':
+                nick_name = "Отсутствует"
+            return self.conn.commit(), self.conn.close(), nick_name
+        except:
+            return self.conn.commit(), self.conn.close(), "Отсутствует"
