@@ -921,7 +921,7 @@ while True:
                                     handle = open("mylog.log", "r")
                                     for line in handle:
                                         sender(chat_id, line)
-                                        time.sleep(60)
+                                        time.sleep(0.5)
                                         handle.close()
 
                                 elif cmd == 'crash':
@@ -930,11 +930,17 @@ while True:
                                     #
                                     # sender(chat_id, classtracker.ClassTracker())
                                 elif cmd == 'log2':
-                                    handle = open("mylog.txt", "r")
+                                    handle = open("mylog.log", "r")
                                     for line in handle:
-                                        sender(chat_id, str(line))
-                                        time.sleep(60)
+                                        sender(chat_id, line)
+                                        time.sleep(0.5)
                                         handle.close()
+
+                                elif cmd == 'log3':
+                                    handle = open("mylog.log", "r")
+                                    sender(chat_id, str(handle))
+                                    time.sleep(0.5)
+                                    handle.close()
 
                                 elif cmd == 'тишина':
                                     if is_quiet == 1:
