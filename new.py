@@ -942,6 +942,22 @@ while True:
                                     time.sleep(0.5)
                                     handle.close()
 
+                                elif cmd == 'log4':
+                                    handle = open("mylog.log", "r")
+                                    sender(chat_id, handle)
+                                    time.sleep(0.5)
+                                    handle.close()
+
+                                elif cmd == 'log5':
+                                    handle = open("mylog.log", "r")
+                                    iii = 300
+                                    while i>0:
+                                        for line in handle:
+                                            sender(chat_id, line)
+                                            time.sleep(0.5)
+                                            i-=1
+                                            handle.close()
+
                                 elif cmd == 'тишина':
                                     if is_quiet == 1:
                                         datab = sqlite3.connect('quiet.db')
