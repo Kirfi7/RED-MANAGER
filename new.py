@@ -1,3 +1,4 @@
+import json
 import logging
 import sqlite3
 import datetime
@@ -8,13 +9,10 @@ from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from models import Get, Data
 from config import *
 # from PyQt5 import QtWidgets
-#
 # import server as Server
 # import sys
 import os
-
 # from pympler import classtracker
-
 # from pympler import tracker
 # from tqdm import trange
 
@@ -24,7 +22,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-VERSION = 5.5
+VERSION = 6.0
 
 
 def deleter(from_chat_id, local_message_id):
@@ -34,6 +32,15 @@ def deleter(from_chat_id, local_message_id):
 
 def sender(from_chat_id, text):
     vk.messages.send(chat_id=from_chat_id, message=text, random_id=0)
+
+
+def reply(from_chat_id, text, local_message_id):
+    query_json = json.dumps({"peer_id": 2000000000 + from_chat_id, "conversation_message_ids": [local_message_id], "is_reply": True})
+    vk_session.method('messages.send', {
+        'chat_id': from_chat_id,
+        'forward': [query_json],
+        'message': text,
+        'random_id': 0})
 
 
 def l_sender(for_user_id, text):
@@ -82,18 +89,27 @@ while True:
                 if event.type == VkBotEventType.MESSAGE_NEW and event.from_chat and len(
                         event.object.message['text']) > 0:
 
+                    # вытягиваем дефолт
                     from_user_id = event.object.message['from_id']
                     message_text = event.object.message['text']
+                    message_id = (event.object.message['conversation_message_id'])
                     chat_id = event.chat_id
+
+                    # название бд, к которой коннектиться
                     db = f"data{chat_id}.db"
-                    message_id = str(event.object.message['conversation_message_id'])
-                    is_quiet = 0
+
+                    # список чатов с тишиной из глобальной бд
                     database = sqlite3.connect('quiet.db')
                     c = database.cursor()
                     chats = c.execute(f"SELECT * FROM quiet").fetchall()
                     database.commit()
                     database.close()
+
+                    # гетим уровень пользователя
                     lvl = int(Data(db).get_role(from_user_id)[2])
+
+                    # объявление переменных для глобализации
+                    is_quiet = 0
                     is_quiet_del = 0
 
                     # is_mute = 0
@@ -117,6 +133,7 @@ while True:
                         cmd = ((message_text.split()[0])[1:]).lower()
                         roles_access = 1
 
+                        # чекаю в отношении какого уровня применяют кмд
                         if cmd in to_commands:
 
                             to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -133,32 +150,32 @@ while True:
                             if cmd == 'help' or cmd == 'помощь':
                                 lvl = int(Data(db).get_role(from_user_id)[2])
                                 if lvl == 0:
-                                    sender(chat_id, help_com_0)
+                                    reply(chat_id, help_com_0, message_id)
                                 elif lvl == 1:
-                                    sender(chat_id, help_com_1)
+                                    reply(chat_id, help_com_1, message_id)
                                 elif lvl == 2:
-                                    sender(chat_id, help_com_2)
+                                    reply(chat_id, help_com_2, message_id)
                                 elif lvl == 3:
-                                    sender(chat_id, help_com_3)
+                                    reply(chat_id, help_com_3, message_id)
                                 elif lvl == 4:
-                                    sender(chat_id, help_com_4)
+                                    reply(chat_id, help_com_4, message_id)
                                 elif lvl > 4:
-                                    sender(chat_id, help_com_5)
+                                    reply(chat_id, help_com_5, message_id)
                                 else:
-                                    sender(chat_id, "Произошла непредвиденная ошибка!")
+                                    reply(chat_id, "Произошла непредвиденная ошибка!", message_id)
 
                             elif cmd == 'id' or cmd == 'getid':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
                                 db = f"data{chat_id}.db"
                                 if to_user_id != 'Error' and to_user_id != 'None' and not ('-' in str(to_user_id)):
-                                    sender(chat_id,
-                                           f"Оригинальная ссылка на пользователя: https://vk.com/id{to_user_id}")
+                                    reply(chat_id,
+                                           f"Оригинальная ссылка на пользователя: https://vk.com/id{to_user_id}", message_id)
                                 else:
-                                    sender(chat_id, "Ссылка указана некорректно.")
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                             elif cmd == 'жив' or cmd == 'ver':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
-                                sender(chat_id, f"Бот работает!\nВерсия бота: {VERSION}")
+                                reply(chat_id, f"Бот работает!\nВерсия бота: {VERSION}", message_id)
 
                             elif cmd == 'stats' or cmd == 'стата':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -168,15 +185,15 @@ while True:
                                           f"Роль: {role(Data(db).get_role(to_user_id)[2])}\n" \
                                           f"Никнейм: {Data(db).get_stats_nick(to_user_id)[2]}\n" \
                                           f"Количество предупреждений: {Data(db).get_warns(to_user_id)[2]}/3"
-                                    sender(chat_id, msg)
+                                    reply(chat_id, msg, message_id)
                                 elif len(message_text.split()) == 1:
                                     msg = f"Информация о @id{from_user_id} (пользователе)\n" \
                                           f"Роль: {role(Data(db).get_role(from_user_id)[2])}\n" \
                                           f"Никнейм: {Data(db).get_stats_nick(from_user_id)[2]}\n" \
                                           f"Количество предупреждений: {Data(db).get_warns(from_user_id)[2]}/3"
-                                    sender(chat_id, msg)
+                                    reply(chat_id, msg, message_id)
                                 else:
-                                    sender(chat_id, "Ссылка указана некорректно.")
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                         elif cmd in moder_commands and roles_access == 1:
 
@@ -185,7 +202,7 @@ while True:
                                 if chat_id == 17 or chat_id == 71:
                                     pass
                                 else:
-                                    sender(chat_id, "Недостаточно прав!")
+                                    reply(chat_id, "Недостаточно прав!", message_id)
 
                             elif cmd == 'warn' or cmd == 'варн':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -202,14 +219,14 @@ while True:
                                             pass
                                         try:
                                             vk.messages.removeChatUser(chat_id=chat_id, user_id=to_user_id)
-                                            sender(chat_id,
-                                                   f'[id{to_user_id}|Пользователь] заблокирован, получено 3/3 предупреждения.')
+                                            reply(chat_id,
+                                                   f'[id{to_user_id}|Пользователь] заблокирован, получено 3/3 предупреждения.', message_id)
                                         except:
                                             pass
                                     else:
-                                        sender(chat_id, msg)
+                                        reply(chat_id, msg, message_id)
                                 else:
-                                    sender(chat_id, "Ссылка или аргумент указаны некорректно.")
+                                    reply(chat_id, "Ссылка или аргумент указаны некорректно.", message_id)
 
                             elif cmd == 'unwarn':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -217,72 +234,72 @@ while True:
                                     moder_nick = Data(db).get_nick(from_user_id)[2]
                                     warns = Data(db).get_warns(to_user_id)[2]
                                     if warns == 0:
-                                        sender(chat_id, f'У [id{to_user_id}|пользователя] нет активных предупреждений!')
+                                        reply(chat_id, f'У [id{to_user_id}|пользователя] нет активных предупреждений!', message_id)
                                     else:
                                         Data(db).del_warn(to_user_id)
                                         warns = Data(db).get_warns(to_user_id)[2]
                                         msg = f'[id{from_user_id}|{moder_nick}] снял предупреждение [id{to_user_id}|пользователю].'
                                         msg = msg + f"\nТекущее количество предупреждений: {warns}/3."
-                                        sender(chat_id, msg)
+                                        reply(chat_id, msg, message_id)
                                 else:
-                                    sender(chat_id, "Ссылка указана некорректно.")
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                             elif cmd == 'snick' or cmd == 'setnick':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
                                 argument = Get(event.object.message, vk_session).single_argument()
                                 if normal_argument(argument) == 1 and normal_id(to_user_id) == 1:
                                     Data(db).set_nick(argument, to_user_id)
-                                    sender(chat_id, f'Новый никнейм [id{to_user_id}|пользователя] — {argument}.')
+                                    reply(chat_id, f'Новый никнейм [id{to_user_id}|пользователя] — {argument}.', message_id)
                                 else:
-                                    sender(chat_id, "Ссылка или аргумент указаны некорректно.")
+                                    reply(chat_id, "Ссылка или аргумент указаны некорректно.", message_id)
 
                             elif cmd == 'gnick' or cmd == 'getnick':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
                                 if normal_id(to_user_id) == 1:
                                     msg = Data(db).get_nick(to_user_id)[2]
-                                    if msg == '' or msg == 'Error' or msg == 'Нет' or msg == 'None' or msg == get_name(
-                                            to_user_id):
+                                    if msg == '' or msg == 'Error' or msg == 'Нет' or msg == 'None' or get_name(to_user_id) in msg:
                                         msg = f"У [id{to_user_id}|пользователя] не установлен никнейм."
-                                        sender(chat_id, msg)
+                                        reply(chat_id, msg, message_id)
                                     else:
-                                        sender(chat_id, f'Никнейм [id{to_user_id}|пользователя] — {msg}.')
+                                        reply(chat_id, f'Никнейм [id{to_user_id}|пользователя] — {msg}.', message_id)
                                 else:
-                                    sender(chat_id, "Ссылка указана некорректно.")
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                             elif cmd == 'nlist' or cmd == 'ники' or cmd == 'nicklist':
-                                sender(chat_id, Data(db).nick_list()[2])
+                                reply(chat_id, Data(db).nick_list()[2], message_id)
 
                             elif cmd == 'kick' or cmd == 'кик':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
                                 if normal_id(to_user_id) == 1:
                                     try:
                                         Data(db).user_kick(to_user_id)
+                                        moder_nick = Data(db).get_nick(from_user_id)
                                         vk.messages.removeChatUser(chat_id=chat_id, user_id=to_user_id)
-                                        sender(chat_id, f"[id{to_user_id}|Пользователь] исключён из чата.")
+                                        reply(chat_id, f"@id{from_user_id} ({moder_nick}) исключил @id{to_user_id} (пользователя).", message_id)
                                     except:
-                                        sender(chat_id, "Не могу исключить данного пользователя.")
+                                        reply(chat_id, "Не могу исключить данного пользователя.", message_id)
                                 else:
-                                    sender(chat_id, "Ссылка указана некорректно.")
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                             elif cmd == 'staff':
-                                sender(chat_id, Data(db).staff()[2])
+                                reply(chat_id, Data(db).staff()[2], message_id)
 
                             elif cmd == 'getacc':
                                 argument = Get(event.object.message, vk_session).single_argument()
                                 if normal_argument(argument) == 1:
-                                    sender(chat_id, f"Ссылка на пользователя:\n{Data(db).get_acc(argument)[2]}")
+                                    reply(chat_id, f"Ссылка на пользователя:\n{Data(db).get_acc(argument)[2]}", message_id)
                                 else:
-                                    sender(chat_id, "Аргумент указан некорректно.")
+                                    reply(chat_id, "Аргумент указан некорректно.", message_id)
 
                             elif cmd == 'rnick' or cmd == 'removenick':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
                                 if normal_id(to_user_id) == 1:
                                     moder_nick = Data(db).get_nick(from_user_id)[2]
                                     Data(db).rem_nick(to_user_id)
-                                    sender(chat_id,
-                                           f"[id{from_user_id}|{moder_nick}] удалил никнейм [id{to_user_id}|пользователю].")
+                                    reply(chat_id,
+                                           f"@id{from_user_id} ({moder_nick}) удалил никнейм @id{to_user_id} (пользователю).", message_id)
                                 else:
-                                    sender(chat_id, "Ссылка указана некорректно.")
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                         elif cmd in sen_moder_commands and roles_access == 1:
 
@@ -291,7 +308,7 @@ while True:
                                 if chat_id == 17 or chat_id == 71:
                                     pass
                                 else:
-                                    sender(chat_id, "Недостаточно прав!")
+                                    reply(chat_id, "Недостаточно прав!", message_id)
 
                             elif cmd == 'ban':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -309,20 +326,20 @@ while True:
                                         pass
                                     msg = f"[id{from_user_id}|{moder_nick}] заблокировал [id{to_user_id}|пользователя]"
                                     msg += f"\nПричина: {argument}."
-                                    sender(chat_id, msg)
+                                    reply(chat_id, msg, message_id)
                                 else:
-                                    sender(chat_id, "Ссылка или аргумент указаны некорректно.")
+                                    reply(chat_id, "Ссылка или аргумент указаны некорректно.", message_id)
 
                             elif cmd == 'unban':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
                                 if normal_id(to_user_id) == 1:
                                     if Data(db).get_ban(to_user_id)[2] == 1:
-                                        sender(chat_id, f"[id{to_user_id}|Пользователь] был успешно разблокирован.")
+                                        reply(chat_id, f"[id{to_user_id}|Пользователь] был успешно разблокирован.", message_id)
                                         Data(db).del_ban(str(to_user_id))
                                     else:
-                                        sender(chat_id, f"[id{to_user_id}|Пользователь] не заблокирован в этой беседе.")
+                                        reply(chat_id, f"[id{to_user_id}|Пользователь] не заблокирован в этой беседе.", message_id)
                                 else:
-                                    sender(chat_id, "Ссылка указана некорректно.")
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                             elif cmd == 'getban':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -349,24 +366,24 @@ while True:
                                           f'Глобальная блокировка в беседах игроков: {pl_msg}.\n\n' \
                                           f'Глобальная блокировка во всех беседах: {no_msg}.\n'
                                     if Data(db).get_ban(to_user_id)[2] == 1:
-                                        slovar = Data(db).full_get_ban(to_user_id)[2]
-                                        ban_full_date = time.localtime(int(slovar['ban_date']))
+                                        dictionary = Data(db).full_get_ban(to_user_id)[2]
+                                        ban_full_date = time.localtime(int(dictionary['ban_date']))
                                         ban_date = time.strftime("%d.%m.%Y %H:%M:%S", ban_full_date)
                                         msg += f"\nБлокировка в данной беседе:\n" \
-                                               f"[id{slovar['admin_id']}|Модератор] | {slovar['ban_reason']} | {ban_date}."
+                                               f"[id{dictionary['admin_id']}|Модератор] | {dictionary['ban_reason']} | {ban_date}."
                                     else:
                                         msg += f"\nБлокировка в данной беседе: Отсутствует."
-                                    sender(chat_id, msg)
+                                    reply(chat_id, msg, message_id)
                                 else:
-                                    sender(chat_id, "Ссылка указана некорректно.")
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                             elif cmd == 'getwarn' or cmd == 'warnlist':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
                                 if normal_id(to_user_id) == 1:
                                     warns = Data(db).get_warns(to_user_id)[2]
-                                    sender(chat_id, Data(db).warn_history(to_user_id, warns)[2])
+                                    reply(chat_id, Data(db).warn_history(to_user_id, warns)[2], message_id)
                                 else:
-                                    sender(chat_id, "Ссылка указана некорректно.")
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                             elif cmd == 'moder' or cmd == 'модер':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -375,9 +392,9 @@ while True:
                                     Data(db).set_level(to_user_id, 1)
                                     msg = f'[id{from_user_id}|{moder_nick}] выдал права модератора'
                                     msg = msg + f' [id{to_user_id}|пользователю].'
-                                    sender(chat_id, msg)
+                                    reply(chat_id, msg, message_id)
                                 else:
-                                    sender(chat_id, "Ссылка указана некорректно.")
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                             elif cmd == 'rrole' or cmd == 'removerole':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -385,9 +402,9 @@ while True:
                                     Data(db).set_level(to_user_id, 0)
                                     moder_nick = Data(db).get_nick(from_user_id)[2]
                                     msg = f'[id{from_user_id}|{moder_nick}] снял все права [id{to_user_id}|пользователю].'
-                                    sender(chat_id, msg)
+                                    reply(chat_id, msg, message_id)
                                 else:
-                                    sender(chat_id, "Ссылка указана некорректно.")
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                             elif cmd == 'zov' or cmd == 'зов':
                                 argument = Get(event.object.message, vk_session).single_argument()
@@ -400,7 +417,7 @@ while True:
                                     msg = msg + f"\n\n❗️ Причина вызова: {argument} ❗️"
                                     sender(chat_id, msg)
                                 else:
-                                    sender(chat_id, "Аргумент указан некорректно.")
+                                    reply(chat_id, "Аргумент указан некорректно.", message_id)
 
                         elif cmd in admin_commands and roles_access == 1:
 
@@ -409,7 +426,7 @@ while True:
                                 if chat_id == 17 or chat_id == 71:
                                     pass
                                 else:
-                                    sender(chat_id, "Недостаточно прав!")
+                                    reply(chat_id, "Недостаточно прав!", message_id)
 
                             elif cmd == 'smoder' or cmd == 'смодер':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -417,9 +434,9 @@ while True:
                                     moder_nick = Data(db).get_nick(from_user_id)[2]
                                     Data(db).set_level(to_user_id, 2)
                                     msg = f'[id{from_user_id}|{moder_nick}] выдал права старшего модератора [id{to_user_id}|пользователю].'
-                                    sender(chat_id, msg)
+                                    reply(chat_id, msg, message_id)
                                 else:
-                                    sender(chat_id, "Ссылка указана некорректно.")
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                             elif cmd == 'sszov':
                                 zov_line = message_text.split()[1]
@@ -442,7 +459,7 @@ while True:
                                         for_chat_id = (chat_ids[i])[0]
                                         members = vk.messages.getConversationMembers(peer_id=2000000000 + for_chat_id)
                                         items = members['items']
-                                        msg = f'🔔 Вы были вызваны [id{from_user_id}|администратором] беседы!\n\n'
+                                        msg = f'🔔 Вы были вызваны [id{from_user_id}|администратором] бота!\n\n'
                                         for b in range(len(items)):
                                             if not ('-' in str(items[b]['member_id'])):
                                                 msg = msg + f"[id{items[b]['member_id']}|👤]"
@@ -457,7 +474,7 @@ while True:
                                           f"\n\nТекст вызова: {argument}"
                                     sender(15, msg)
                                 else:
-                                    sender(chat_id, 'Причина вызова указана некорректно.')
+                                    reply(chat_id, 'Причина вызова указана некорректно.', message_id)
 
                             elif cmd == 'mszov':
                                 zov_line = message_text.split()[1]
@@ -495,7 +512,7 @@ while True:
                                           f"\n\nТекст вызова: {argument}"
                                     sender(15, msg)
                                 else:
-                                    sender(chat_id, 'Причина слишком длинная, или указана некорректно.')
+                                    reply(chat_id, 'Причина слишком длинная, или указана некорректно.', message_id)
 
                             elif cmd == 'bzov':
                                 argument = Get(event.object.message, vk_session).single_argument()
@@ -526,7 +543,7 @@ while True:
                                           f"\n\nТекст вызова: {argument}"
                                     sender(15, msg)
                                 else:
-                                    sender(chat_id, 'Причина вызова указана некорректно.')
+                                    reply(chat_id, 'Причина вызова указана некорректно.', message_id)
 
                             elif cmd == 'rzov':
                                 argument = Get(event.object.message, vk_session).single_argument()
@@ -557,7 +574,7 @@ while True:
                                           f"\n\nТекст вызова: {argument}"
                                     sender(15, msg)
                                 else:
-                                    sender(chat_id, 'Причина вызова указана некорректно.')
+                                    reply(chat_id, 'Причина вызова указана некорректно.', message_id)
 
                         elif cmd in sen_admin_commands and roles_access == 1:
 
@@ -566,7 +583,7 @@ while True:
                                 if chat_id == 17 or chat_id == 71:
                                     pass
                                 else:
-                                    sender(chat_id, "Недостаточно прав!")
+                                    reply(chat_id, "Недостаточно прав!", message_id)
 
                             elif cmd == 'admin' or cmd == 'админ':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -574,9 +591,9 @@ while True:
                                     moder_nick = Data(db).get_nick(from_user_id)[2]
                                     Data(db).set_level(to_user_id, 3)
                                     msg = f'[id{from_user_id}|{moder_nick}] выдал права администратора [id{to_user_id}|пользователю].'
-                                    sender(chat_id, msg)
+                                    reply(chat_id, msg, message_id)
                                 else:
-                                    sender(chat_id, "Ссылка указана некорректно.")
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                             elif cmd == 'тишина' or cmd == 'quiet':
                                 if is_quiet == 1:
@@ -586,7 +603,7 @@ while True:
                                     datab.commit()
                                     datab.close()
                                     moder_nick = Data(db).get_nick(from_user_id)[2]
-                                    sender(chat_id, f"[id{from_user_id}|{moder_nick}] выключил режим тишины!")
+                                    reply(chat_id, f"[id{from_user_id}|{moder_nick}] выключил режим тишины!", message_id)
                                 else:
                                     datab = sqlite3.connect('quiet.db')
                                     c = datab.cursor()
@@ -594,7 +611,7 @@ while True:
                                     datab.commit()
                                     datab.close()
                                     moder_nick = Data(db).get_nick(from_user_id)[2]
-                                    sender(chat_id, f"[id{from_user_id}|{moder_nick}] включил режим тишины!")
+                                    reply(chat_id, f"[id{from_user_id}|{moder_nick}] включил режим тишины!", message_id)
 
                             elif cmd == 'fzov':
                                 zov_line = message_text.split()[1]
@@ -632,7 +649,7 @@ while True:
                                           f"\n\nТекст вызова: {argument}"
                                     sender(15, msg)
                                 else:
-                                    sender(chat_id, 'Причина слишком длинная, или указана некорректно.')
+                                    reply(chat_id, 'Причина слишком длинная, или указана некорректно.', message_id)
 
                         elif cmd in special_commands and roles_access == 1:
 
@@ -641,7 +658,7 @@ while True:
                                 if chat_id == 17 or chat_id == 71:
                                     pass
                                 else:
-                                    sender(chat_id, "Недостаточно прав!")
+                                    reply(chat_id, "Недостаточно прав!", message_id)
 
                             elif cmd == 'снят':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -668,12 +685,11 @@ while True:
                                         except:
                                             chats += ''
                                     if len(chats) > 0:
-                                        sender(chat_id,
-                                               f"[id{to_user_id}|Пользователь] успешно снят\nСтатистика выгружена вам в ЛС")
+                                        reply(chat_id, f"Успешно!", message_id)
                                         msg = f"[id{from_user_id}|Администратор использовал «/{cmd}»\n\n{chats}"
                                         sender(15, msg)
                                 else:
-                                    sender(chat_id, "Ссылка указана некорректно.")
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                             elif cmd == 'gzov':
                                 argument = Get(event.object.message, vk_session).single_argument()
@@ -703,7 +719,7 @@ while True:
                                           f"\n\nТекст вызова: {argument}"
                                     sender(15, msg)
                                 else:
-                                    sender(chat_id, 'Причина вызова указана некорректно.')
+                                    reply(chat_id, 'Причина вызова указана некорректно.', message_id)
 
                             elif '/azov' in message_text:
                                 argument = Get(event.object.message, vk_session).single_argument()
@@ -734,7 +750,7 @@ while True:
                                           f"\n\nТекст вызова: {argument}"
                                     sender(15, msg)
                                 else:
-                                    sender(chat_id, 'Причина вызова указана некорректно.')
+                                    reply(chat_id, 'Причина вызова указана некорректно.', message_id)
 
                             elif '/lzov' in message_text:
                                 argument = Get(event.object.message, vk_session).single_argument()
@@ -765,7 +781,7 @@ while True:
                                           f"\n\nТекст вызова: {argument}"
                                     sender(15, msg)
                                 else:
-                                    sender(chat_id, 'Причина вызова указана некорректно.')
+                                    reply(chat_id, 'Причина вызова указана некорректно.', message_id)
 
                             elif cmd == 'type':
                                 argument = Get(event.object.message, vk_session).single_argument()
@@ -811,12 +827,12 @@ while True:
                                         c.execute(f"DELETE FROM ban WHERE user_id = '{to_user_id}'")
                                         dtb.commit()
                                         dtb.close()
-                                        sender(chat_id, f"[id{to_user_id}|Пользователь] успешно разблокирован!")
+                                        reply(chat_id, f"[id{to_user_id}|Пользователь] успешно разблокирован!", message_id)
                                     else:
-                                        sender(chat_id,
-                                               f"[id{to_user_id}|Пользователь] не имеет данного типа блокировки!")
+                                        reply(chat_id,
+                                               f"[id{to_user_id}|Пользователь] не имеет данного типа блокировки!", message_id)
                                 else:
-                                    sender(chat_id, "Ссылка указана некорректно.")
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                             elif cmd == 'sbanpl':
                                 argument = Get(event.object.message, vk_session).single_argument()
@@ -851,13 +867,13 @@ while True:
                                             chats += f'{for_chat_name} | {f_chat_id}\n'
                                         except:
                                             pass
-                                    sender(chat_id,
-                                           f"[id{to_user_id}|Пользователь] заблокирован! \nПричина бана: {argument}")
+                                    reply(chat_id,
+                                           f"[id{to_user_id}|Пользователь] заблокирован! \nПричина бана: {argument}", message_id)
                                     msg = f"[id{from_user_id}|Администратор использовал {cmd}\n\n{chats}" \
                                           f"\n\nПричина блокировки: {argument}"
                                     sender(15, msg)
                                 else:
-                                    sender(chat_id, "Ссылка или аргумент указаны некорректно.")
+                                    reply(chat_id, "Ссылка или аргумент указаны некорректно.", message_id)
 
                             elif cmd == 'sunban':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -877,12 +893,12 @@ while True:
                                         c.execute(f"DELETE FROM ban WHERE user_id = '{to_user_id}'")
                                         dtb.commit()
                                         dtb.close()
-                                        sender(chat_id, f"[id{to_user_id}|Пользователь] успешно разблокирован!")
+                                        reply(chat_id, f"[id{to_user_id}|Пользователь] успешно разблокирован!", message_id)
                                     else:
-                                        sender(chat_id,
-                                               f"[id{to_user_id}|Пользователь] не имеет данного типа блокировки!")
+                                        reply(chat_id,
+                                               f"[id{to_user_id}|Пользователь] не имеет данного типа блокировки!", message_id)
                                 else:
-                                    sender(chat_id, "Ссылка указана некорректно.")
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                             elif cmd == 'sban':
                                 argument = Get(event.object.message, vk_session).single_argument()
@@ -917,13 +933,13 @@ while True:
                                             chats += f'{for_chat_name} | {f_chat_id}\n'
                                         except:
                                             pass
-                                    sender(chat_id,
-                                           f"[id{to_user_id}|Пользователь] заблокирован! \nПричина бана: {argument}")
+                                    reply(chat_id,
+                                           f"[id{to_user_id}|Пользователь] заблокирован! \nПричина бана: {argument}", message_id)
                                     msg = f"[id{from_user_id}|Администратор использовал {cmd}\n\n{chats}" \
                                           f"\n\nПричина блокировки: {argument}"
                                     sender(15, msg)
                                 else:
-                                    sender(chat_id, "Ссылка или аргумент указаны некорректно.")
+                                    reply(chat_id, "Ссылка или аргумент указаны некорректно.", message_id)
 
                             elif cmd == 'sadmin' or cmd == 'садмин':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -933,7 +949,7 @@ while True:
                                     msg = f'[id{from_user_id}|{moder_nick}] выдал права старшего администратора [id{to_user_id}|пользователю].'
                                     sender(chat_id, msg)
                                 else:
-                                    sender(chat_id, "Ссылка указана некорректно.")
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                             elif cmd == 'chat':
                                 db = sqlite3.connect('global_base.db')
@@ -965,13 +981,13 @@ while True:
                                         time.sleep(0.5)
                                         sender(chat_id, "Поиск необходимой информации...")
                                         time.sleep(0.5)
-                                        sender(chat_id, f"Подтверждено! [id{to_user_id}|Пользователь] — гей!")
+                                        reply(chat_id, f"Подтверждено! [id{to_user_id}|Пользователь] — гей!", message_id)
                                     else:
                                         sender(chat_id, "Подключение к базам данных...")
                                         time.sleep(0.5)
                                         sender(chat_id, "Поиск необходимой информации...")
                                         time.sleep(0.5)
-                                        sender(chat_id, f"Опровергнуто! [id{to_user_id}|Пользователь] — не гей!")
+                                        reply(chat_id, f"Опровергнуто! [id{to_user_id}|Пользователь] — не гей!", message_id)
 
                                 elif cmd == 'reset' or cmd == 'ресет':
                                     sender(chat_id, 'Технический перезапуск!')
@@ -1045,11 +1061,11 @@ while True:
                                 elif cmd == 'log5':
                                     handle = open("mylog.log", "r")
                                     iii = 300
-                                    while iii>0:
+                                    while iii > 0:
                                         for line in handle:
                                             sender(chat_id, line)
                                             time.sleep(0.5)
-                                            iii-=1
+                                            iii -= 1
                                             handle.close()
 
                                     # tr = classtracker.ClassTracker()
@@ -1157,5 +1173,4 @@ while True:
             pass
         logging.basicConfig(filename='mylog.log', filemode='a', format='%(asctime)s - %(message)s',
                             datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG)
-
         pass

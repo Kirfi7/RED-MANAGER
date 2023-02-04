@@ -307,8 +307,7 @@ class Data:
         '{to_user_id}',
         '{admin}',
         '{str(datetime.datetime.now().timestamp()).split('.')[0]}',
-        '{reason}'
-        )""")
+        '{reason}')""")
         return self.conn.commit(), self.conn.close()
 
     def del_ban(self, to_user_id):
