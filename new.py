@@ -150,17 +150,17 @@ while True:
                             if cmd == 'help' or cmd == 'помощь':
                                 lvl = int(Data(db).get_role(from_user_id)[2])
                                 if lvl == 0:
-                                    reply(chat_id, help_com_0, message_id)
+                                    sender(chat_id, help_com_0)
                                 elif lvl == 1:
-                                    reply(chat_id, help_com_1, message_id)
+                                    sender(chat_id, help_com_1)
                                 elif lvl == 2:
-                                    reply(chat_id, help_com_2, message_id)
+                                    sender(chat_id, help_com_2)
                                 elif lvl == 3:
-                                    reply(chat_id, help_com_3, message_id)
+                                    sender(chat_id, help_com_3)
                                 elif lvl == 4:
-                                    reply(chat_id, help_com_4, message_id)
+                                    sender(chat_id, help_com_4)
                                 elif lvl > 4:
-                                    reply(chat_id, help_com_5, message_id)
+                                    sender(chat_id, help_com_5)
                                 else:
                                     reply(chat_id, "Произошла непредвиденная ошибка!", message_id)
 
@@ -175,7 +175,7 @@ while True:
 
                             elif cmd == 'жив' or cmd == 'ver':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
-                                reply(chat_id, f"Бот работает!\nВерсия бота: {VERSION}", message_id)
+                                sender(chat_id, f"Бот работает!\nВерсия бота: {VERSION}")
 
                             elif cmd == 'stats' or cmd == 'стата':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
