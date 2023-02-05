@@ -255,7 +255,7 @@ class Data:
 
     def staff(self):
         msg_5 = '👑 Главный Администратор:\n— [id468509613|Kirfi_Marciano]' \
-              '\n\n👑 Зам Главного Администратора:\n— [id327113505|Ricardo_Vendetta]\n— [id16715256|Prokhor_Adzinets]' \
+              '\n\n👑 Зам. Главного Администратора:\n— [id327113505|Ricardo_Vendetta]\n— [id16715256|Prokhor_Adzinets]' \
                 '\n\n👑 Кураторы Администрации:\n— [id534422651|Mikhail_Pearson]\n— [id137480835|Serega_Forestry]\n'
         r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '4'").fetchall()
         msg_4 = msg_5 + '\n⭐ Старшие Администраторы:\n'
