@@ -1211,10 +1211,10 @@ while True:
             print("\n Переподключение к серверам ВК \n")
             time.sleep(3)
 
-    except Exception as error:
+    except Exception: # as error
         try:
             os.mkdir('Log')
-            sender(15, error)
+            # sender(15, error)
         except FileExistsError:
             pass
         logging.basicConfig(filename='mylog.log', filemode='a', format='%(asctime)s - %(message)s',
