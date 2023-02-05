@@ -9,7 +9,7 @@ STAFF_IDS = ['327113505', '16715256', '137480835']
 prefix = ['/', '!', '+']
 
 # команды 0+ lvl
-users_commands = ['help', 'id', 'getid', 'stats', 'стата', 'жив', 'помощь']
+users_commands = ['help', 'id', 'getid', 'stats', 'стата', 'жив', 'помощь', 'ver']
 
 # команды 1+ lvl
 moder_commands = ['warn', 'варн', 'unwarn', 'getacc', 'кик', 'kick', 'removenick', 'snick', 'gnick', 'setnick', 'getnick', 'staff', 'nlist', 'rnick', 'ники', 'nicklist']
