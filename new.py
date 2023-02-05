@@ -97,7 +97,8 @@ while True:
 
                     # название бд, к которой коннектиться
                     db = f"data{chat_id}.db"
-
+                    # active_ids ['chat_settings']
+                    # chat_settings
                     # список чатов с тишиной из глобальной бд
                     database = sqlite3.connect('quiet.db')
                     c = database.cursor()
@@ -327,7 +328,8 @@ while True:
                                         pass
                                     msg = f"[id{from_user_id}|{moder_nick}] заблокировал [id{to_user_id}|пользователя]"
                                     reply(chat_id, msg, message_id)
-                                    sender(15, f"[id{from_user_id}|Администратор] использовал «/{cmd}»\n\nБеседа: {chat_name}\nПользователь: https://vk.com/id{to_user_id}\nПричина блокировки: {argument}")
+                                    sender(15, f"[id{from_user_id}|Администратор] использовал «/{cmd}»\n\nБеседа: {chat_name}\n"
+                                               f"Пользователь: https://vk.com/id{to_user_id}\nПричина блокировки: {argument}")
                                 else:
                                     reply(chat_id, "Ссылка или аргумент указаны некорректно.", message_id)
 
@@ -419,6 +421,10 @@ while True:
                                     sender(chat_id, msg)
                                 else:
                                     reply(chat_id, "Аргумент указан некорректно.", message_id)
+
+                            elif cmd == 'olist':
+                                online_array = ((vk.messages.getConversationsById(peer_ids=2000000000 + chat_id)['items'][0])['chat_settings'])['active_ids']
+                                pass
 
                         elif cmd in admin_commands and roles_access == 1:
 
@@ -578,13 +584,13 @@ while True:
                                     reply(chat_id, 'Причина вызова указана некорректно.', message_id)
 
                             elif cmd == 'тишина' or cmd == 'quiet':
+                                moder_nick = Data(db).get_nick(from_user_id)[2]
                                 if is_quiet == 1:
                                     datab = sqlite3.connect('quiet.db')
                                     c = datab.cursor()
                                     c.execute(f"DELETE FROM quiet WHERE chat_id = '{chat_id}'")
                                     datab.commit()
                                     datab.close()
-                                    moder_nick = Data(db).get_nick(from_user_id)[2]
                                     reply(chat_id, f"[id{from_user_id}|{moder_nick}] выключил режим тишины!", message_id)
                                 else:
                                     datab = sqlite3.connect('quiet.db')
@@ -592,7 +598,6 @@ while True:
                                     c.execute(f"INSERT INTO quiet VALUES ('{chat_id}')")
                                     datab.commit()
                                     datab.close()
-                                    moder_nick = Data(db).get_nick(from_user_id)[2]
                                     reply(chat_id, f"[id{from_user_id}|{moder_nick}] включил режим тишины!", message_id)
 
                         elif cmd in sen_admin_commands and roles_access == 1:
@@ -687,7 +692,7 @@ while True:
                                             chats += ''
                                     if len(chats) > 0:
                                         reply(chat_id, f"Успешно!", message_id)
-                                        msg = f"[id{from_user_id}|Администратор использовал «/{cmd}»\n\n{chats}"
+                                        msg = f"[id{from_user_id}|Администратор] использовал «/{cmd}»\n\n{chats}"
                                         sender(15, msg)
                                 else:
                                     reply(chat_id, "Ссылка указана некорректно.", message_id)
