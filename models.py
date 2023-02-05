@@ -90,6 +90,16 @@ class Data:
         except:
             return self.conn.commit(), self.conn.close(), "Error"
 
+    def g_nick(self, to_user_id):
+        result = self.c.execute(f"SELECT nick_name FROM users WHERE user_id = '{to_user_id}'")
+        try:
+            nick_name = result.fetchone()[0]
+            if nick_name == 'Нет' or nick_name == 'None' or nick_name == 'Error' or nick_name == '':
+                nick_name = "Error"
+            return self.conn.commit(), self.conn.close(), nick_name
+        except:
+            return self.conn.commit(), self.conn.close(), "Error"
+
     def user_kick(self, to_user_id):
         try:
             self.c.execute(f"DELETE FROM users WHERE user_id = '{to_user_id}'")
