@@ -22,7 +22,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-VERSION = 6.3
+VERSION = 6.4
 
 
 def deleter(from_chat_id, local_message_id):
@@ -857,16 +857,12 @@ while True:
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         try:
                                             vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
-                                            msg = f"[id{from_user_id}|Администратор] забанил " \
-                                                  f"[id{to_user_id}|пользователя] во всех беседах сервера." \
+                                            msg = f"[id{to_user_id}|Пользователь] заблокирован во всех беседах сервера" \
                                                   f"\n Причина: {argument}."
                                             sender(f_chat_id, msg)
-                                            chats += f'{for_chat_name} | {f_chat_id}\n'
+                                            chats += f'{for_chat_name}\n'
                                         except:
                                             pass
-                                    reply(chat_id,
-                                          f"[id{to_user_id}|Пользователь] заблокирован во всех беседах сервера!\n",
-                                          message_id)
                                     msg = f"[id{from_user_id}|Администратор] использовал «/{cmd}»\n\n{chats}" \
                                           f"\n\nПользователь: https://vk.com/id{to_user_id}\nПричина блокировки: {argument}"
                                     sender(15, msg)
@@ -924,16 +920,12 @@ while True:
                                         for_chat_name = (Conservations[0]['chat_settings'])['title']
                                         try:
                                             vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
-                                            msg = f"[id{from_user_id}|Администратор] забанил " \
-                                                  f"[id{to_user_id}|пользователя] во всех беседах сервера." \
+                                            msg = f"[id{to_user_id}|Пользователь] заблокирован во всех беседах сервера" \
                                                   f"\n Причина: {argument}."
                                             sender(f_chat_id, msg)
-                                            chats += f'{for_chat_name} | {f_chat_id}\n'
+                                            chats += f'{for_chat_name}\n'
                                         except:
                                             pass
-                                    reply(chat_id,
-                                          f"[id{to_user_id}|Пользователь] заблокирован во всех беседах сервера!\n",
-                                          message_id)
                                     msg = f"[id{from_user_id}|Администратор] использовал «/{cmd}»\n\n{chats}" \
                                           f"\n\nПользователь: https://vk.com/id{to_user_id}\nПричина блокировки: {argument}"
                                     sender(15, msg)
@@ -965,13 +957,67 @@ while True:
                             if str(from_user_id) in DEV_IDS or str(from_user_id) in STAFF_IDS:
 
                                 if cmd == 'start':
-                                    members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)[
-                                        'items']
-                                    members = []
-                                    for i in members_array:
-                                        members.append(i['member_id'])
-                                    Data(db).start(members, chat_id)
-                                    sender(chat_id, "Бот успешно запущен!")
+                                    database = sqlite3.connect('global_base.db')
+                                    c = database.cursor()
+                                    chats = c.execute(f"SELECT chat_id FROM chat").fetchall()
+                                    database.commit()
+                                    database.close()
+                                    registered = 0
+                                    for chat in chats:
+                                        if chat[0] == chat_id:
+                                            registered = 1
+                                    if registered != 1:
+                                        members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)[
+                                            'items']
+                                        members = []
+                                        for i in members_array:
+                                            members.append(i['member_id'])
+                                        Data(db).start(members, chat_id)
+                                        reply(chat_id, "Бот успешно запущен!", message_id)
+                                    else:
+                                        reply(chat_id, "Беседа уже зарегистрирована!", message_id)
+
+                                # elif cmd == 'sync':
+                                #     database = sqlite3.connect('global_base.db')
+                                #     c = database.cursor()
+                                #     chats = c.execute(f"SELECT chat_id, chat_type FROM chat").fetchall()
+                                #     ban_list = c.execute(f"SELECT user_id, ban_type FROM ban").fetchall()
+                                #     database.commit()
+                                #     database.close()
+                                #     registered = 0
+                                #     for chat in chats:
+                                #         if chat[0] == chat_id:
+                                #             registered = 1
+                                #             this_chat = chat[1]
+                                #             reply(chat_id, "Синхронизация с базами данных...", message_id)
+                                #             members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)['items']
+                                #             members = []
+                                #             for i in members_array:
+                                #                 members.append(i['member_id'])
+                                #             for element in ban_list:
+                                #                 if element[0] in members:
+                                #                     if (element[1] == 'No' and this_chat != 'ms') or (element[1] == 'Pl'):
+                                #                         vk.messages.removeChatUser(chat_id=chat_id,
+                                #                                                    user_id=element[0])
+                                #             this_data = sqlite3.connect(db)
+                                #             c = this_data.cursor()
+                                #             data_members = c.execute(f"SELECT user_id FROM users").fetchall()
+                                #             this_data.commit()
+                                #             this_data.close()
+
+                                    if registered == 1:
+                                        pass
+                                    else:
+                                        try:
+                                            reply(chat_id, "Бот еще не запущен!", message_id)
+                                        except Exception as error:
+                                            print(error)
+
+                                # elif cmd == 'test':
+                                #     try:
+                                #         sender(777777, "HaHa")
+                                #     except Exception as error:
+                                #         sender(2, error)
 
                                 elif cmd == 'gay':
                                     to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -1165,9 +1211,10 @@ while True:
             print("\n Переподключение к серверам ВК \n")
             time.sleep(3)
 
-    except Exception:
+    except Exception as error:
         try:
             os.mkdir('Log')
+            sender(15, error)
         except FileExistsError:
             pass
         logging.basicConfig(filename='mylog.log', filemode='a', format='%(asctime)s - %(message)s',
