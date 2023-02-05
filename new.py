@@ -22,7 +22,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-VERSION = 6.2
+VERSION = 6.3
 
 
 def deleter(from_chat_id, local_message_id):
@@ -898,7 +898,7 @@ while True:
                                 else:
                                     reply(chat_id, "Ссылка указана некорректно.", message_id)
 
-                            elif cmd == 'sbanpl':
+                            elif cmd == 'sban':
                                 argument = Get(event.object.message, vk_session).single_argument()
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
                                 if normal_id(to_user_id) == 1 and normal_argument(argument) == 1 and len(argument) <= 64:
