@@ -977,7 +977,7 @@ while True:
                                 time.sleep(0.5)
                                 admin_ids = ((vk.messages.getConversationsById(peer_ids=2000000000 + chat_id)['items'][0])['chat_settings'])['admin_ids']
                                 for i in members_array:
-                                    if int(i['member_id']) in admin_ids or str(i['member_id']) in STAFF_IDS:
+                                    if int(i['member_id']) in admin_ids or str(i['member_id']) in STAFF_IDS or str(i['member_id']) in DEV_IDS:
                                         pass
                                     else:
                                         try:
