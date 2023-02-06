@@ -1232,7 +1232,10 @@ while True:
                         c = dtb.cursor()
                         banned_user_ids = (c.execute(f"SELECT user_id, ban_type FROM ban").fetchall())
                         this_chat_type = (c.execute(f"SELECT chat_type FROM chat WHERE chat_id = '{chat_id}'").fetchone())[0]
-                        chat_greeting = (c.execute(f"SELECT greeting_text FROM chat WHERE chat_id = '{chat_id}'").fetchone())[0]
+                        try:
+                            chat_greeting = (c.execute(f"SELECT greeting_text FROM chat WHERE chat_id = '{chat_id}'").fetchone())[0]
+                        except:
+                            chat_greeting = ''
                         if this_chat_type != 'ms':
                             c_type = 'No'
                         else:
@@ -1245,7 +1248,7 @@ while True:
                                 g_ban_trigger = i[1]
                         if Data(db).get_ban(action_user_id)[2] == 0 and g_ban_trigger != c_type:
                             Data(db).new_user(action_user_id)
-                            if chat_greeting != 'Clear':
+                            if chat_greeting != 'Clear' and chat_greeting != '':
                                 sender(chat_id, f"Здравствуйте, [{action_user_id}|{get_name(action_user_id)}]!\nПриветствие, установленное в беседе:\n\n{chat_greeting}")
                         else:
                             sender(chat_id, f"[id{action_user_id}|Пользователь] заблокирован в этом чате!")
