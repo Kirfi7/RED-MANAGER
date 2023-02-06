@@ -106,31 +106,31 @@ while True:
                     database.commit()
                     database.close()
 
-                    # гетим уровень пользователя
-                    lvl = int(Data(db).get_role(from_user_id)[2])
+                    # # гетим уровень пользователя
+                    # lvl = int(Data(db).get_role(from_user_id)[2])
+                    #
+                    # # объявление переменных для глобализации
+                    # is_quiet = 0
+                    # is_quiet_del = 0
+                    #
+                    # # is_mute = 0
+                    # # if Data(db).is_muted(from_user_id)[2] == 1:
+                    # #     is_mute = 1
+                    #
+                    # array = []
+                    # # собираю массив чатов с тишиной
+                    # for i in chats:
+                    #     array.append(str(i[0]))
+                    # if str(chat_id) in array:
+                    #     is_quiet = 1
+                    #     if lvl == 0:
+                    #         is_quiet_del = 1
+                    #         deleter(chat_id, message_id)
+                    #     else:
+                    #         pass
 
-                    # объявление переменных для глобализации
-                    is_quiet = 0
-                    is_quiet_del = 0
-
-                    # is_mute = 0
-                    # if Data(db).is_muted(from_user_id)[2] == 1:
-                    #     is_mute = 1
-
-                    array = []
-                    # собираю массив чатов с тишиной
-                    for i in chats:
-                        array.append(str(i[0]))
-                    if str(chat_id) in array:
-                        is_quiet = 1
-                        if lvl == 0:
-                            is_quiet_del = 1
-                            deleter(chat_id, message_id)
-                        else:
-                            pass
-
-                    if message_text[0] in prefix and is_quiet_del == 0:
-
+                    if message_text[0] in prefix:
+                        # and is_quiet_del == 0:
                         cmd = ((message_text.split()[0])[1:]).lower()
                         roles_access = 1
 
@@ -982,23 +982,22 @@ while True:
                                 db.close()
                                 sender(chat_id, f"Локальный ID беседы: {chat_id}\nНастройки беседы: {msg}")
 
-                        elif cmd in dev_commands and roles_access == 1:
-
+                        elif cmd in dev_commands:
+                            # and roles_access == 1
                             if str(from_user_id) in DEV_IDS or str(from_user_id) in STAFF_IDS:
 
                                 if cmd == 'start':
-                                    database = sqlite3.connect('global_base.db')
-                                    c = database.cursor()
-                                    chats = c.execute(f"SELECT chat_id FROM chat").fetchall()
-                                    database.commit()
-                                    database.close()
-                                    members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)[
-                                        'items']
+                                    # database = sqlite3.connect('global_base.db')
+                                    # c = database.cursor()
+                                    # chats = c.execute(f"SELECT chat_id FROM chat").fetchall()
+                                    # database.commit()
+                                    # database.close()
+                                    members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)['items']
                                     members = []
                                     for i in members_array:
                                         members.append(i['member_id'])
                                     Data(db).start(members, chat_id)
-                                    reply(chat_id, "Бот успешно запущен!", message_id)
+                                    sender(chat_id, "Бот успешно запущен!")
 
                                 elif cmd == 'sync':
                                     database = sqlite3.connect('global_base.db')

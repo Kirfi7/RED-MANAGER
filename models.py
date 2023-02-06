@@ -157,31 +157,28 @@ class Data:
         return self.conn.commit(), self.conn.close()
 
     def start(self, user_ids, chat_id):
-        try:
-            self.c.execute("""CREATE TABLE ban (
-                user_id integer,
-                admin_id integer,
-                ban_date text,
-                ban_reason text
-                )""")
-            self.c.execute("""CREATE TABLE warn (
-                user_id integer,
-                admin_id integer,
-                warn_reason text
-                )""")
-            self.c.execute("""CREATE TABLE mute (
-                user_id integer,
-                minutes integer
-                )""")
-            self.c.execute("""CREATE TABLE users (
-                user_id text,
-                nick_name text,
-                is_mute integer,
-                warn_count integer,
-                admin_roles integer
-                )""")
-        except:
-            return self.conn.commit(), self.conn.close(), 0
+        self.c.execute("""CREATE TABLE ban (
+            user_id integer,
+            admin_id integer,
+            ban_date text,
+            ban_reason text
+            )""")
+        self.c.execute("""CREATE TABLE warn (
+            user_id integer,
+            admin_id integer,
+            warn_reason text
+            )""")
+        self.c.execute("""CREATE TABLE mute (
+            user_id integer,
+            minutes integer
+            )""")
+        self.c.execute("""CREATE TABLE users (
+            user_id text,
+            nick_name text,
+            is_mute integer,
+            warn_count integer,
+            admin_roles integer
+            )""")
         db = sqlite3.connect('global_base.db')
         c = db.cursor()
         c.execute(f"""INSERT INTO chat VALUES (
@@ -199,7 +196,7 @@ class Data:
                 '{0}',
                 '{0}'
                 )""")
-        return self.conn.commit(), self.conn.close(), 1
+        return self.conn.commit(), self.conn.close()
 
     def add_warn(self, to_user_id, admin_id, reason):
         self.c.execute(f"""INSERT INTO warn VALUES (
