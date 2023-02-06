@@ -22,7 +22,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-VERSION = 7.1
+VERSION = 7.2
 
 
 def deleter(from_chat_id, local_message_id):
@@ -1232,7 +1232,7 @@ while True:
                         c = dtb.cursor()
                         banned_user_ids = (c.execute(f"SELECT user_id, ban_type FROM ban").fetchall())
                         this_chat_type = (c.execute(f"SELECT chat_type FROM chat WHERE chat_id = '{chat_id}'").fetchone())[0]
-                        chat_greeting = (c.execute(f"SELECT gteeting_text FROM chat WHERE chat_id = '{chat_id}'").fetchone())[0]
+                        chat_greeting = (c.execute(f"SELECT greeting_text FROM chat WHERE chat_id = '{chat_id}'").fetchone())[0]
                         if this_chat_type != 'ms':
                             c_type = 'No'
                         else:
@@ -1246,8 +1246,7 @@ while True:
                         if Data(db).get_ban(action_user_id)[2] == 0 and g_ban_trigger != c_type:
                             Data(db).new_user(action_user_id)
                             if chat_greeting != 'Clear':
-                                sender(chat_id, f"Здравствуйте, [|{get_name(action_user_id)}]!\n"
-                                                f"Приветствие, установленное в беседе:\n\n{chat_greeting}")
+                                sender(chat_id, f"Здравствуйте, [{action_user_id}|{get_name(action_user_id)}]!\nПриветствие, установленное в беседе:\n\n{chat_greeting}")
                         else:
                             sender(chat_id, f"[id{action_user_id}|Пользователь] заблокирован в этом чате!")
                             vk.messages.removeChatUser(chat_id=chat_id, user_id=action_user_id)
