@@ -21,7 +21,7 @@ sen_moder_commands = ['zov', 'зов', 'ban', 'unban', 'getwarn', 'warnlist', 'g
 admin_commands = ['bzov', 'mszov', 'sszov', 'smoder', 'смодер', 'rzov', 'quiet', 'тишина']
 
 # команды 4+ lvl
-sen_admin_commands = ['admin', 'админ', 'fzov']
+sen_admin_commands = ['admin', 'админ', 'fzov', 'greeting', 'приветствие']
 
 # команды 5+ lvl
 special_commands = ['azov', 'gzov', 'lzov', 'line', 'type', 'sunbanpl', 'sbanpl', 'sunban', 'sban', 'гсопг', 'гсгосс', 'sadmin', 'садмин', 'снят', 'chat', 'demote']
