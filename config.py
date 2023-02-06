@@ -12,10 +12,10 @@ prefix = ['/', '!', '+']
 users_commands = ['help', 'id', 'getid', 'stats', 'стата', 'жив', 'ver', 'помощь']
 
 # команды 1+ lvl
-moder_commands = ['warn', 'варн', 'unwarn', 'getacc', 'кик', 'kick', 'removenick', 'snick', 'gnick', 'setnick', 'getnick', 'staff', 'nlist', 'rnick', 'ники', 'nicklist']
+moder_commands = ['warn', 'варн', 'unwarn', 'getacc', 'кик', 'kick', 'removenick', 'snick', 'gnick', 'setnick', 'getnick', 'staff', 'nlist', 'rnick', 'ники', 'nicklist', 'olist']
 
 # команды 2+ lvl
-sen_moder_commands = ['zov', 'зов', 'ban', 'unban', 'getwarn', 'warnlist', 'getban', 'rrole', 'removerole', 'moder', 'модер']
+sen_moder_commands = ['zov', 'зов', 'ban', 'unban', 'getwarn', 'warnlist', 'getban', 'rrole', 'removerole', 'moder', 'модер', 'online', 'онлайн']
 
 # команды 3+ lvl
 admin_commands = ['bzov', 'mszov', 'sszov', 'smoder', 'смодер', 'rzov', 'quiet', 'тишина']
@@ -24,10 +24,10 @@ admin_commands = ['bzov', 'mszov', 'sszov', 'smoder', 'смодер', 'rzov', 'q
 sen_admin_commands = ['admin', 'админ', 'fzov']
 
 # команды 5+ lvl
-special_commands = ['azov', 'gzov', 'lzov', 'line', 'type', 'sunbanpl', 'sbanpl', 'sunban', 'sban', 'гсопг', 'гсгосс', 'sadmin', 'садмин', 'снят', 'chat']
+special_commands = ['azov', 'gzov', 'lzov', 'line', 'type', 'sunbanpl', 'sbanpl', 'sunban', 'sban', 'гсопг', 'гсгосс', 'sadmin', 'садмин', 'снят', 'chat', 'demote']
 
 # команды разработчиков
-dev_commands = ['spec', 'start', 'reset', 'ресет', 'log', 'gay', 'log2', 'тишина', 'crash', 'log3', 'log4', 'log5', 'quiet', 'test']
+dev_commands = ['spec', 'start', 'reset', 'ресет', 'log', 'gay', 'log2', 'тишина', 'crash', 'log3', 'log4', 'log5', 'quiet', 'test', 'demote']
 
 # команды с тригером на иерархию ролей
 to_commands = ['warn', 'варн', 'unwarn', 'кик', 'kick', 'ban', 'rrole', 'removerole', 'moder', 'модер', 'admin', 'админ', 'sbanpl', 'sban', 'sadmin', 'садмин', 'снят', 'gay']
