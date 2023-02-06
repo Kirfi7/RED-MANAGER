@@ -97,8 +97,7 @@ while True:
 
                     # название бд, к которой коннектиться
                     db = f"data{chat_id}.db"
-                    # active_ids ['chat_settings']
-                    # chat_settings
+
                     # список чатов с тишиной из глобальной бд
                     database = sqlite3.connect('quiet.db')
                     c = database.cursor()
@@ -106,31 +105,31 @@ while True:
                     database.commit()
                     database.close()
 
-                    # # гетим уровень пользователя
-                    # lvl = int(Data(db).get_role(from_user_id)[2])
-                    #
-                    # # объявление переменных для глобализации
-                    # is_quiet = 0
-                    # is_quiet_del = 0
-                    #
-                    # # is_mute = 0
-                    # # if Data(db).is_muted(from_user_id)[2] == 1:
-                    # #     is_mute = 1
-                    #
-                    # array = []
-                    # # собираю массив чатов с тишиной
-                    # for i in chats:
-                    #     array.append(str(i[0]))
-                    # if str(chat_id) in array:
-                    #     is_quiet = 1
-                    #     if lvl == 0:
-                    #         is_quiet_del = 1
-                    #         deleter(chat_id, message_id)
-                    #     else:
-                    #         pass
+                    # гетим уровень пользователя
+                    lvl = int(Data(db).get_role(from_user_id)[2])
 
-                    if message_text[0] in prefix:
-                        # and is_quiet_del == 0:
+                    # объявление переменных для глобализации
+                    is_quiet = 0
+                    is_quiet_del = 0
+
+                    # is_mute = 0
+                    # if Data(db).is_muted(from_user_id)[2] == 1:
+                    #     is_mute = 1
+
+                    array = []
+                    # собираю массив чатов с тишиной
+                    for i in chats:
+                        array.append(str(i[0]))
+                    if str(chat_id) in array:
+                        is_quiet = 1
+                        if lvl == 0:
+                            is_quiet_del = 1
+                            deleter(chat_id, message_id)
+                        else:
+                            pass
+
+                    if message_text[0] in prefix and is_quiet_del == 0:
+
                         cmd = ((message_text.split()[0])[1:]).lower()
                         roles_access = 1
 
@@ -299,6 +298,13 @@ while True:
                                 else:
                                     reply(chat_id, "Ссылка указана некорректно.", message_id)
 
+                            elif cmd == 'olist':
+                                online_array = ((vk.messages.getConversationsById(peer_ids=2000000000 + chat_id)['items'][0])['chat_settings'])['active_ids']
+                                online_list = "Пользователи онлайн:\n"
+                                for online_member in online_array:
+                                    online_list += f"— [id{online_member}|{get_name(online_member)}]\n"
+                                sender(chat_id, online_list)
+
                         elif cmd in sen_moder_commands and roles_access == 1:
 
                             lvl = Data(db).get_role(from_user_id)[2]
@@ -430,13 +436,6 @@ while True:
                                     sender(chat_id, f"🔔 @id{from_user_id} (Администратор) вызвал участников онлайн!\n\n{online_tag}\n\nПричина: {argument}")
                                 else:
                                     reply(chat_id, "Аргумент указан некорректно.", message_id)
-
-                            elif cmd == 'olist':
-                                online_array = ((vk.messages.getConversationsById(peer_ids=2000000000 + chat_id)['items'][0])['chat_settings'])['active_ids']
-                                online_list = "Пользователи онлайн:\n"
-                                for online_member in online_array:
-                                    online_list += f"— [id{online_member}|{get_name(online_member)}]\n"
-                                sender(chat_id, online_list)
 
                         elif cmd in admin_commands and roles_access == 1:
 
@@ -956,11 +955,18 @@ while True:
                             elif cmd == 'demote':
                                 members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)['items']
                                 sender(chat_id, "Начинаю расформировку конференции...")
+                                time.sleep(0.5)
+                                admin_ids = ((vk.messages.getConversationsById(peer_ids=2000000000 + chat_id)['items'][0])['chat_settings'])['admin_ids']
                                 for i in members_array:
-                                    try:
-                                        vk.messages.removeChatUser(chat_id=chat_id, user_id=int(i['member_id']))
-                                    except Exception as error:
-                                        print(error)
+                                    if int(i['member_id']) in admin_ids or str(i['member_id']) in STAFF_IDS:
+                                        pass
+                                    else:
+                                        try:
+                                            vk.messages.removeChatUser(chat_id=chat_id, user_id=int(i['member_id']))
+                                            Data(db).user_kick(int(i['member_id']))
+                                        except Exception as error:
+                                            print(error)
+                                        time.sleep(0.25)
 
                             elif cmd == 'sadmin' or cmd == 'садмин':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
@@ -982,16 +988,15 @@ while True:
                                 db.close()
                                 sender(chat_id, f"Локальный ID беседы: {chat_id}\nНастройки беседы: {msg}")
 
-                        elif cmd in dev_commands:
-                            # and roles_access == 1
+                        elif cmd in dev_commands and roles_access == 1:
                             if str(from_user_id) in DEV_IDS or str(from_user_id) in STAFF_IDS:
 
                                 if cmd == 'start':
-                                    # database = sqlite3.connect('global_base.db')
-                                    # c = database.cursor()
-                                    # chats = c.execute(f"SELECT chat_id FROM chat").fetchall()
-                                    # database.commit()
-                                    # database.close()
+                                    database = sqlite3.connect('global_base.db')
+                                    c = database.cursor()
+                                    chats = c.execute(f"SELECT chat_id FROM chat").fetchall()
+                                    database.commit()
+                                    database.close()
                                     members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)['items']
                                     members = []
                                     for i in members_array:
