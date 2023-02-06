@@ -22,7 +22,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-VERSION = 7.0
+VERSION = 7.1
 
 
 def deleter(from_chat_id, local_message_id):
@@ -620,6 +620,25 @@ while True:
                                 else:
                                     reply(chat_id, "Недостаточно прав!", message_id)
 
+                            elif cmd == 'приветствие' or cmd == 'greeting':
+                                argument = Get(event.object.message, vk_session).single_argument()
+                                if normal_argument(argument) == 1 and len(argument) <= 3072 and argument != 'del':
+                                    datab = sqlite3.connect('global_base.db')
+                                    c = datab.cursor()
+                                    c.execute(f"UPDATE chat SET greeting_text = '{argument}'")
+                                    datab.commit()
+                                    datab.close()
+                                    reply(chat_id, "Приветствие успешно установлено!", message_id)
+                                elif argument == 'del':
+                                    datab = sqlite3.connect('global_base.db')
+                                    c = datab.cursor()
+                                    c.execute(f"UPDATE chat SET greeting_text = 'Clear'")
+                                    datab.commit()
+                                    datab.close()
+                                    reply(chat_id, "Приветствие успешно удалено!", message_id)
+                                else:
+                                    reply(chat_id, 'Текст приветствия указан некорректно.', message_id)
+
                             elif cmd == 'admin' or cmd == 'админ':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()
                                 if normal_id(to_user_id) == 1:
@@ -632,7 +651,7 @@ while True:
 
                             elif cmd == 'fzov':
                                 zov_line = message_text.split()[1]
-                                argument = message_text[11:]
+                                argument = message_text[10:]
                                 zov_lines = ['all', 'gos', 'opg']
                                 if normal_argument(argument) == 1 and len(
                                         argument) < 2048 and zov_line.lower() in zov_lines:
@@ -1212,8 +1231,8 @@ while True:
                         dtb = sqlite3.connect('global_base.db')
                         c = dtb.cursor()
                         banned_user_ids = (c.execute(f"SELECT user_id, ban_type FROM ban").fetchall())
-                        this_chat_type = (
-                            c.execute(f"SELECT chat_type FROM chat WHERE chat_id = '{chat_id}'").fetchone())[0]
+                        this_chat_type = (c.execute(f"SELECT chat_type FROM chat WHERE chat_id = '{chat_id}'").fetchone())[0]
+                        chat_greeting = (c.execute(f"SELECT gteeting_text FROM chat WHERE chat_id = '{chat_id}'").fetchone())[0]
                         if this_chat_type != 'ms':
                             c_type = 'No'
                         else:
@@ -1226,6 +1245,9 @@ while True:
                                 g_ban_trigger = i[1]
                         if Data(db).get_ban(action_user_id)[2] == 0 and g_ban_trigger != c_type:
                             Data(db).new_user(action_user_id)
+                            if chat_greeting != 'Clear':
+                                sender(chat_id, f"Здравствуйте, [|{get_name(action_user_id)}]!\n"
+                                                f"Приветствие, установленное в беседе:\n\n{chat_greeting}")
                         else:
                             sender(chat_id, f"[id{action_user_id}|Пользователь] заблокирован в этом чате!")
                             vk.messages.removeChatUser(chat_id=chat_id, user_id=action_user_id)
