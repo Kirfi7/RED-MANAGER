@@ -86,7 +86,6 @@ while True:
     try:
         try:
             for event in lp.listen():
-
                 if event.type == VkBotEventType.MESSAGE_NEW and event.from_chat and len(
                         event.object.message['text']) > 0:
 
