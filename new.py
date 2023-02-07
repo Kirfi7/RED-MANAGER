@@ -1,18 +1,21 @@
-import json
-import logging
-import sqlite3
 import datetime
-import requests
+import sqlite3
+import logging
+import json
 import time
+import os
+
 import vk_api
+import requests
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
-from models import Get, Data
+
 from config import *
+from models import Get, Data
+
 # import aiovk
 # from PyQt5 import QtWidgets
 # import server as Server
 # import sys
-import os
 # from pympler import classtracker
 # from pympler import tracker
 # from tqdm import trange
@@ -23,7 +26,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-VERSION = 7.6
+VERSION = 7.7
 
 
 def deleter(from_chat_id, local_message_id):
@@ -946,7 +949,7 @@ while True:
                                     '{argument}',
                                     'No'
                                     )""")
-                                    chat_ids = (c.execute(f"SELECT chat_id FROM chat WHERE chat_type <> 'ms'").fetchall())
+                                    chat_ids = (c.execute(f"SELECT chat_id FROM chat WHERE chat_type <> 'ms' AND chat_type <> 'bw'").fetchall())
                                     db.commit()
                                     db.close()
                                     chats = ''
@@ -1224,19 +1227,20 @@ while True:
                         chat_event = event.message.action['type']
                         action_user_id = event.message.action['member_id']
                     except:
-                        chat_event = ''
-                        action_user_id = -100
+                        chat_event = 'ABCD'
+                        action_user_id = 'B_R_U_H'
 
                     if chat_event == 'chat_invite_user':
                         dtb = sqlite3.connect('global_base.db')
                         c = dtb.cursor()
-                        banned_user_ids = (c.execute(f"SELECT user_id, ban_type FROM ban").fetchall())
+                        banned_user_ids = c.execute(f"SELECT user_id, ban_type FROM ban").fetchall()
                         this_chat_type = (c.execute(f"SELECT chat_type FROM chat WHERE chat_id = '{chat_id}'").fetchone())[0]
-                        try:
-                            chat_greeting = (c.execute(f"SELECT greeting_text FROM chat WHERE chat_id = '{chat_id}'").fetchone())[0]
-                        except:
+                        chat_array = c.execute(f"SELECT * FROM chat WHERE chat_id = '{chat_id}'").fetchone()
+                        if str(chat_array[0]) == str(chat_id):
+                            chat_greeting = chat_array[3]
+                        else:
                             chat_greeting = ''
-                        if this_chat_type != 'ms':
+                        if this_chat_type != 'ms' and this_chat_type != 'bw':
                             c_type = 'No'
                         else:
                             c_type = 'Pl'
@@ -1249,7 +1253,7 @@ while True:
                         if Data(db).get_ban(action_user_id)[2] == 0 and g_ban_trigger != c_type:
                             Data(db).new_user(action_user_id)
                             if chat_greeting != 'Clear' and chat_greeting != '':
-                                sender(chat_id, f"Здравствуйте, [id{action_user_id}|{get_name(action_user_id)}]!\nПриветствие, установленное в беседе:\n\n{chat_greeting}")
+                                sender(chat_id, f"[id{action_user_id}|🔔] Приветствие, установленное в беседе 🔔\n\n{chat_greeting}")
                         else:
                             sender(chat_id, f"[id{action_user_id}|Пользователь] заблокирован в этом чате!")
                             vk.messages.removeChatUser(chat_id=chat_id, user_id=action_user_id)

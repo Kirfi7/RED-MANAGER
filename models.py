@@ -1,7 +1,7 @@
 import sqlite3
 import datetime
 import vk_api
-import aiovk
+# import aiovk
 from config import TOKEN
 
 
