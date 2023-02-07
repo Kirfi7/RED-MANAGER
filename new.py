@@ -8,7 +8,7 @@ import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from models import Get, Data
 from config import *
-import aiovk
+# import aiovk
 # from PyQt5 import QtWidgets
 # import server as Server
 # import sys
@@ -23,7 +23,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-VERSION = 7.3
+VERSION = 7.6
 
 
 def deleter(from_chat_id, local_message_id):
@@ -67,7 +67,7 @@ def normal_argument(for_argument):
         return 1
 
 
-async def role(level):
+def role(level):
     if level >= 5:
         return "Руководитель Сервера"
     elif level == 4:
