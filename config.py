@@ -12,7 +12,7 @@ prefix = ['/', '!', '+']
 users_commands = ['help', 'id', 'getid', 'stats', 'стата', 'жив', 'ver', 'помощь']
 
 # команды 1+ lvl
-moder_commands = ['warn', 'варн', 'unwarn', 'getacc', 'кик', 'kick', 'removenick', 'snick', 'gnick', 'setnick', 'getnick', 'staff', 'nlist', 'rnick', 'ники', 'nicklist', 'olist']
+moder_commands = ['warn', 'варн', 'unwarn', 'getacc', 'кик', 'kick', 'removenick', 'snick', 'gnick', 'setnick', 'getnick', 'staff', 'nlist', 'rnick', 'ники', 'nicklist', 'olist', 'mute', 'unmute', 'мут']
 
 # команды 2+ lvl
 sen_moder_commands = ['zov', 'зов', 'ban', 'unban', 'getwarn', 'warnlist', 'getban', 'rrole', 'removerole', 'moder', 'модер', 'online', 'онлайн']
@@ -30,7 +30,7 @@ special_commands = ['azov', 'gzov', 'lzov', 'line', 'type', 'sunbanpl', 'sbanpl'
 dev_commands = ['spec', 'start', 'reset', 'ресет', 'log', 'gay', 'log2', 'тишина', 'crash', 'log3', 'log4', 'log5', 'quiet', 'test']
 
 # команды с тригером на иерархию ролей
-to_commands = ['warn', 'варн', 'unwarn', 'кик', 'kick', 'ban', 'rrole', 'removerole', 'moder', 'модер', 'admin', 'админ', 'sbanpl', 'sban', 'sadmin', 'садмин', 'снят', 'gay']
+to_commands = ['warn', 'варн', 'unwarn', 'кик', 'kick', 'ban', 'rrole', 'removerole', 'moder', 'модер', 'admin', 'админ', 'sbanpl', 'sban', 'sadmin', 'садмин', 'снят', 'gay', 'mute', 'unmute', 'мут']
 
 # ниже варианты сообщений для /help
 help_com_0 = '⭐ Официальные ресурсы сервера:\n' \

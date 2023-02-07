@@ -30,25 +30,42 @@ VERSION = 7.7
 
 
 def deleter(from_chat_id, local_message_id):
-    vk.messages.delete(chat_id=from_chat_id, delete_for_all=1, cmids=local_message_id,
-                       peer_id=2000000000 + from_chat_id)
+    vk_session.method('messages.delete', {
+        'chat_id': from_chat_id,
+        'delete_for_all': 1,
+        'cmids': local_message_id,
+        'peer_id': 2000000000 + from_chat_id
+    })
 
 
 def sender(from_chat_id, text):
-    vk.messages.send(chat_id=from_chat_id, message=text, random_id=0)
+    vk_session.method('messages.send', {
+        'chat_id': from_chat_id,
+        'message': text,
+        'random_id': 0
+    })
 
 
 def reply(from_chat_id, text, local_message_id):
-    query_json = json.dumps({"peer_id": 2000000000 + from_chat_id, "conversation_message_ids": [local_message_id], "is_reply": True})
+    query_json = json.dumps({
+        "peer_id": 2000000000 + from_chat_id,
+        "conversation_message_ids": [local_message_id],
+        "is_reply": True
+    })
     vk_session.method('messages.send', {
         'chat_id': from_chat_id,
         'forward': [query_json],
         'message': text,
-        'random_id': 0})
+        'random_id': 0
+    })
 
 
 def l_sender(for_user_id, text):
-    vk.messages.send(user_id=for_user_id, message=text, random_id=0)
+    vk_session.method('messages.send', {
+        'user_id': for_user_id,
+        'message': text,
+        'random_id': 0
+    })
 
 
 def get_name(name_user_id):
@@ -89,6 +106,9 @@ while True:
     try:
         try:
             for event in lp.listen():
+
+                uix_now = int(str(datetime.datetime.now().timestamp()).split('.')[0])
+
                 if event.type == VkBotEventType.MESSAGE_NEW and event.from_chat and len(
                         event.object.message['text']) > 0:
 
@@ -108,22 +128,29 @@ while True:
                     database.commit()
                     database.close()
 
+                    # список мутов из локальной бд
+                    mute_array = Data(db).get_mute()[2]
+
                     # гетим уровень пользователя
                     lvl = int(Data(db).get_role(from_user_id)[2])
 
                     # объявление переменных для глобализации
+                    is_mute = 0
                     is_quiet = 0
                     is_quiet_del = 0
+                    is_muted_del = 0
 
-                    # is_mute = 0
-                    # if Data(db).is_muted(from_user_id)[2] == 1:
-                    #     is_mute = 1
+                    for i in mute_array:
+                        if int(i[0]) == from_user_id:
+                            if int(i[1]) > uix_now:
+                                deleter(chat_id, message_id)
+                                is_muted_del = 1
 
-                    array = []
+                    quiet_array = []
                     # собираю массив чатов с тишиной
                     for i in chats:
-                        array.append(str(i[0]))
-                    if str(chat_id) in array:
+                        quiet_array.append(str(i[0]))
+                    if str(chat_id) in quiet_array:
                         is_quiet = 1
                         if lvl == 0:
                             is_quiet_del = 1
@@ -131,7 +158,7 @@ while True:
                         else:
                             pass
 
-                    if message_text[0] in prefix and is_quiet_del == 0:
+                    if message_text[0] in prefix and is_quiet_del == 0 and is_muted_del == 0:
 
                         cmd = ((message_text.split()[0])[1:]).lower()
                         roles_access = 1
@@ -228,6 +255,33 @@ while True:
                                         reply(chat_id, msg, message_id)
                                 else:
                                     reply(chat_id, "Ссылка или аргумент указаны некорректно.", message_id)
+
+                            elif cmd == 'mute' or cmd == 'мут':
+                                to_user_id = Get(event.object.message, vk_session).to_user_id()
+                                argument = Get(event.object.message, vk_session).single_argument()
+                                if normal_id(to_user_id) == 1 and normal_argument(argument) == 1 and len(argument) <= 4:
+                                    block_trigger = 0
+                                    try:
+                                        block_trigger = 0 if int(argument) <= 1440 else 1
+                                    except:
+                                        block_trigger = 1
+                                    if block_trigger == 0:
+                                        moder_nick = Data(db).get_nick(from_user_id)[2]
+                                        Data(db).add_mute(to_user_id, int(argument))
+                                        reply(chat_id, f"@id{from_user_id} ({moder_nick}) выдал мут пользователю.", message_id)
+                                    else:
+                                        reply(chat_id, "Аргумент некорректный или превышает 1440 минут.", message_id)
+                                else:
+                                    reply(chat_id, "Ссылка или аргумент указаны некорректно.", message_id)
+
+                            elif cmd == 'unmute':
+                                to_user_id = Get(event.object.message, vk_session).to_user_id()
+                                if normal_id(to_user_id) == 1:
+                                    moder_nick = Data(db).get_nick(from_user_id)[2]
+                                    Data(db).del_mute(to_user_id)
+                                    reply(chat_id, f"@id{from_user_id} ({moder_nick}) снял мут пользователю.", message_id)
+                                else:
+                                    reply(chat_id, "Ссылка указана некорректно.", message_id)
 
                             elif cmd == 'unwarn':
                                 to_user_id = Get(event.object.message, vk_session).to_user_id()

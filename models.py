@@ -338,16 +338,6 @@ class Data:
         dictionary = {'admin_id': f'{result[1]}', 'ban_reason': f'{result[3]}', 'ban_date': f'{result[2]}'}
         return self.conn.commit(), self.conn.close(), dictionary
 
-    def is_muted(self, to_user_id):
-        try:
-            result = self.c.execute(f"SELECT is_mute FROM users WHERE user_id = '{to_user_id}'").fetchone()
-            if len(result) == 1:
-                return self.conn.commit(), self.conn.close(), 1
-            else:
-                return self.conn.commit(), self.conn.close(), 0
-        except:
-            return self.conn.commit(), self.conn.close(), 0
-
     def get_stats_nick(self, to_user_id):
         result = self.c.execute(f"SELECT nick_name FROM users WHERE user_id = '{to_user_id}'")
         try:
@@ -357,3 +347,19 @@ class Data:
             return self.conn.commit(), self.conn.close(), nick_name
         except:
             return self.conn.commit(), self.conn.close(), "Отсутствует"
+
+    def add_mute(self, to_user_id, minutes):
+        uix_time = int(minutes)*60 + int(str(datetime.datetime.now().timestamp()).split('.')[0])
+        self.c.execute(f"INSERT INTO mute VALUES ('{to_user_id}', '{uix_time}')")
+        return self.conn.commit(), self.conn.close()
+
+    def del_mute(self, to_user_id):
+        self.c.execute(f"DELETE FROM mute WHERE user_id = '{to_user_id}'")
+        return self.conn.commit(), self.conn.close()
+
+    def get_mute(self):
+        try:
+            mute_array = self.c.execute(f"SELECT * FROM mute").fetchall()
+            return self.conn.commit(), self.conn.close(), mute_array
+        except:
+            return self.conn.commit(), self.conn.close(), []
