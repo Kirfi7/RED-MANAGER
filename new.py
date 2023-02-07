@@ -26,13 +26,13 @@ vk = vk_session.get_api()
 VERSION = 7.3
 
 
-async def deleter(from_chat_id, local_message_id):
+def deleter(from_chat_id, local_message_id):
     vk.messages.delete(chat_id=from_chat_id, delete_for_all=1, cmids=local_message_id,
                        peer_id=2000000000 + from_chat_id)
 
 
-async def sender(from_chat_id, text):
-    await vk.messages.send(chat_id=from_chat_id, message=text, random_id=0)
+def sender(from_chat_id, text):
+    vk.messages.send(chat_id=from_chat_id, message=text, random_id=0)
 
 
 def reply(from_chat_id, text, local_message_id):
@@ -44,8 +44,8 @@ def reply(from_chat_id, text, local_message_id):
         'random_id': 0})
 
 
-async def l_sender(for_user_id, text):
-    await vk.messages.send(user_id=for_user_id, message=text, random_id=0)
+def l_sender(for_user_id, text):
+    vk.messages.send(user_id=for_user_id, message=text, random_id=0)
 
 
 def get_name(name_user_id):

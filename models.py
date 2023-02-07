@@ -199,7 +199,7 @@ class Data:
                 )""")
         return self.conn.commit(), self.conn.close()
 
-    async def add_warn(self, to_user_id, admin_id, reason):
+    def add_warn(self, to_user_id, admin_id, reason):
         self.c.execute(f"""INSERT INTO warn VALUES (
             '{to_user_id}',
             '{admin_id}',
@@ -251,7 +251,7 @@ class Data:
         msg = msg + f"\nАктивных предупреждений: {count}."
         return self.conn.commit(), self.conn.close(), msg
 
-    async def staff(self):
+    def staff(self):
         msg_5 = '👑 Главный Администратор:\n— [id468509613|Kirfi_Marciano]' \
               '\n\n👑 Зам. Главного Администратора:\n— [id327113505|Ricardo_Vendetta]\n— [id16715256|Prokhor_Adzinets]' \
                 '\n\n👑 Кураторы Администрации:\n— [id534422651|Mikhail_Pearson]\n— [id137480835|Serega_Forestry]\n'
@@ -303,14 +303,14 @@ class Data:
         except:
             return self.conn.commit(), self.conn.close(), 'Error'
 
-    async def nick_list(self):
+    def nick_list(self):
         r = self.c.execute(f"SELECT nick_name, user_id FROM users WHERE nick_name <> 'None' AND nick_name <> 'Нет' AND nick_name <> ''").fetchall()
         msg = f"Список пользователей с никами:"
         for i in range(len(r)):
             msg += f"\n{i+1}) [id{r[i][1]}|{get_name(r[i][1])}] — {r[i][0]}"
         return self.conn.commit(), self.conn.close(), msg
 
-    async def add_ban(self, to_user_id, reason, admin):
+    def add_ban(self, to_user_id, reason, admin):
         self.c.execute(f"""INSERT INTO ban VALUES (
         '{to_user_id}',
         '{admin}',
