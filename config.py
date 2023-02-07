@@ -209,3 +209,20 @@ help_com_5 = '⭐ Команды пользователей:\n' \
              '/sunban — Снятие глобальной блокировки (Кроме МС)\n' \
              '/sadmin (/садмин) — Права старшего админа' \
              '\n\n❗Префиксы команд: «/», «!», «+»'
+
+# command_dictionary = {
+#     "help": {"alt": "помощь", "lvl": 0, "description": "Помощь по командам"},
+#     "stats": {"alt": "стата", "lvl": 0, "description": "Просмотр статистики"},
+#     "id": {"alt": "getid", "lvl": 0, "description": "Узнать ID страницы"},
+#     "ver": {"alt": "жив", "lvl": 0, "description": "Текущая версия бота"},
+#
+#     "warn": {"alt": "варн", "lvl": 1, "description": ""},
+#     "unwarn": {"alt": "нет", "lvl": 1, "description": ""},
+#     "warn": {"alt": "", "lvl": 1, "description": ""},
+#     "warn": {"alt": "", "lvl": 1, "description": ""},
+#     "warn": {"alt": "", "lvl": 1, "description": ""},
+#     "warn": {"alt": "", "lvl": 1, "description": ""},
+#     "warn": {"alt": "", "lvl": 1, "description": ""},
+#     "warn": {"alt": "", "lvl": 1, "description": ""},
+#     "warn": {"alt": "", "lvl": 1, "description": ""},
+# }
