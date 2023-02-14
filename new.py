@@ -26,7 +26,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-VERSION = 8.0
+VERSION = 8.2
 
 
 def deleter(from_chat_id, local_message_id):
@@ -109,8 +109,7 @@ while True:
 
                 uix_now = int(str(datetime.datetime.now().timestamp()).split('.')[0])
 
-                if event.type == VkBotEventType.MESSAGE_NEW and event.from_chat and len(
-                        event.object.message['text']) > 0:
+                if event.type == VkBotEventType.MESSAGE_NEW:
 
                     # вытягиваю дефолт
                     from_user_id = event.object.message['from_id']
@@ -131,14 +130,11 @@ while True:
                     # список мутов из локальной бд
                     mute_array = Data(db).get_mute()[2]
 
-                    # гетим уровень пользователя
+                    # получаем уровень пользователя
                     lvl = int(Data(db).get_role(from_user_id)[2])
 
-                    # объявление переменных для глобализации
-                    is_mute = 0
-                    is_quiet = 0
-                    is_quiet_del = 0
-                    is_muted_del = 0
+                    is_mute = 0; is_quiet = 0
+                    is_quiet_del = 0; is_muted_del = 0
 
                     for i in mute_array:
                         if int(i[0]) == from_user_id:
@@ -771,15 +767,16 @@ while True:
                                         try:
                                             Data(f"data{f_chat_id}.db").user_kick(to_user_id)
                                             vk.messages.removeChatUser(chat_id=f_chat_id, user_id=to_user_id)
-                                            msg = f"[id{from_user_id}|Администратор] исключил" \
-                                                  f"[id{to_user_id}|пользователя] во всех беседах сервера."
+                                            msg = f"[id{from_user_id}|Администратор] исключил " \
+                                                  f"[id{to_user_id}|пользователя] во всех беседах."
                                             sender(f_chat_id, msg)
                                             chats += f'{for_chat_name}\n'
                                         except:
                                             chats += ''
                                     if len(chats) > 0:
                                         reply(chat_id, f"Успешно!", message_id)
-                                        msg = f"[id{from_user_id}|Администратор] использовал «/{cmd}»\n\n{chats}"
+                                        msg = f"[id{from_user_id}|Администратор] использовал «/{cmd}»\n\n{chats}" \
+                                              f"\n\nПользователь: https://vk.com/id{to_user_id}"
                                         sender(15, msg)
                                 else:
                                     reply(chat_id, "Ссылка указана некорректно.", message_id)
@@ -1326,10 +1323,10 @@ while True:
             print("\n Переподключение к серверам ВК \n")
             time.sleep(3)
 
-    except Exception: # as error
+    except Exception as error:
+        sender(15, error)
         try:
             os.mkdir('Log')
-            # sender(15, error)
         except FileExistsError:
             pass
         logging.basicConfig(filename='mylog.log', filemode='a', format='%(asctime)s - %(message)s',
