@@ -1323,8 +1323,7 @@ while True:
             print("\n Переподключение к серверам ВК \n")
             time.sleep(3)
 
-    except Exception as error:
-        sender(15, error)
+    except Exception:
         try:
             os.mkdir('Log')
         except FileExistsError:
