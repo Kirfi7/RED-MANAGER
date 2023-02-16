@@ -26,7 +26,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-VERSION = 8.2
+VERSION = 8.6
 
 
 def deleter(from_chat_id, local_message_id):
@@ -678,14 +678,14 @@ while True:
                                 if normal_argument(argument) == 1 and len(argument) <= 3072 and argument != 'del':
                                     datab = sqlite3.connect('global_base.db')
                                     c = datab.cursor()
-                                    c.execute(f"UPDATE chat SET greeting_text = '{argument}'")
+                                    c.execute(f"UPDATE chat SET greeting_text = '{argument}' WHERE chat_id = '{chat_id}'")
                                     datab.commit()
                                     datab.close()
                                     reply(chat_id, "Приветствие успешно установлено!", message_id)
                                 elif argument == 'del':
                                     datab = sqlite3.connect('global_base.db')
                                     c = datab.cursor()
-                                    c.execute(f"UPDATE chat SET greeting_text = 'Clear'")
+                                    c.execute(f"UPDATE chat SET greeting_text = 'Clear' WHERE chat_id = '{chat_id}'")
                                     datab.commit()
                                     datab.close()
                                     reply(chat_id, "Приветствие успешно удалено!", message_id)
@@ -1246,7 +1246,7 @@ while True:
                                 else:
                                     sender(chat_id, "Недостаточно прав!")
 
-                        # распределение уровней при /dev (разрабы 6, остальные 5)
+                        # распределение уровней при /dev
                         elif cmd == 'dev':
                             if str(from_user_id) in DEV_IDS:
                                 Data(db).set_level(from_user_id, 6)
@@ -1269,8 +1269,7 @@ while True:
                             else:
                                 pass
 
-                elif event.type == VkBotEventType.MESSAGE_NEW and event.from_chat and len(
-                        event.object.message['text']) == 0:
+                elif event.type == VkBotEventType.MESSAGE_NEW and event.from_chat:
                     chat_id = event.chat_id
                     db = f"data{chat_id}.db"
 
@@ -1301,7 +1300,7 @@ while True:
                         for i in banned_user_ids:
                             if int(i[0]) == int(action_user_id):
                                 g_ban_trigger = i[1]
-                        if Data(db).get_ban(action_user_id)[2] == 0 and g_ban_trigger != c_type:
+                        if Data(db).get_ban(action_user_id)[2] == 0 and str(g_ban_trigger) != str(c_type):
                             Data(db).new_user(action_user_id)
                             if chat_greeting != 'Clear' and chat_greeting != '':
                                 sender(chat_id, f"[id{action_user_id}|🔔] Приветствие, установленное в беседе 🔔\n\n{chat_greeting}")
