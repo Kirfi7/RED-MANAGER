@@ -26,7 +26,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-VERSION = 8.8
+VERSION = 8.9
 
 
 def deleter(from_chat_id, local_message_id):
