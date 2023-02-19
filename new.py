@@ -26,7 +26,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-VERSION = 8.6
+VERSION = 8.8
 
 
 def deleter(from_chat_id, local_message_id):
@@ -108,6 +108,51 @@ while True:
             for event in lp.listen():
 
                 uix_now = int(str(datetime.datetime.now().timestamp()).split('.')[0])
+                print(event.message['action']['type'])
+                chat_id = event.chat_id
+                db = f"data{chat_id}.db"
+
+                if event.message['action']['type'] == "chat_invite_user":
+                    action_user_id = event.message['action']['member_id']
+                    print('ХУЙ')
+
+                    dtb = sqlite3.connect('global_base.db')
+                    c = dtb.cursor()
+                    banned_user_ids = c.execute(f"SELECT user_id, ban_type FROM ban").fetchall()
+                    this_chat_type = (c.execute(f"SELECT chat_type FROM chat WHERE chat_id = '{chat_id}'").fetchone())[0]
+                    chat_array = c.execute(f"SELECT * FROM chat WHERE chat_id = '{chat_id}'").fetchone()
+                    if str(chat_array[0]) == str(chat_id):
+                        chat_greeting = chat_array[3]
+                    else:
+                        chat_greeting = ''
+                    if this_chat_type != 'ms' and this_chat_type != 'bw':
+                        c_type = 'No'
+                    else:
+                        c_type = 'Pl'
+                    dtb.commit()
+                    dtb.close()
+                    g_ban_trigger = ''
+                    for i in banned_user_ids:
+                        if int(i[0]) == int(action_user_id):
+                            g_ban_trigger = i[1]
+                    if Data(db).get_ban(action_user_id)[2] == 0 and str(g_ban_trigger) != str(c_type):
+                        Data(db).new_user(action_user_id)
+                        if chat_greeting != 'Clear' and chat_greeting != '':
+                            sender(chat_id, f"[id{action_user_id}|🔔] Приветствие, установленное в беседе 🔔\n\n{chat_greeting}")
+                    else:
+                        sender(chat_id, f"[id{action_user_id}|Пользователь] заблокирован в этом чате!")
+                        vk.messages.removeChatUser(chat_id=chat_id, user_id=action_user_id)
+
+                if event.message['action']['type'] == "chat_kick_user":
+                    action_user_id = event.message['action']['member_id']
+                    db = sqlite3.connect(db)
+                    c = db.cursor()
+                    chat_ids = (c.execute(f"SELECT user_id FROM users").fetchall())
+                    db.commit()
+                    db.close()
+                    for i in chat_ids:
+                        if str(i) == str(action_user_id):
+                            Data(db).user_kick(action_user_id)
 
                 if event.type == VkBotEventType.MESSAGE_NEW:
 
@@ -115,10 +160,6 @@ while True:
                     from_user_id = event.object.message['from_id']
                     message_text = event.object.message['text']
                     message_id = (event.object.message['conversation_message_id'])
-                    chat_id = event.chat_id
-
-                    # название бд, к которой коннектиться
-                    db = f"data{chat_id}.db"
 
                     # список чатов с тишиной из глобальной бд
                     database = sqlite3.connect('quiet.db')
@@ -1268,55 +1309,6 @@ while True:
                                     sender(chat_id, "Недостаточно прав!")
                             else:
                                 pass
-
-                elif event.type == VkBotEventType.MESSAGE_NEW and event.from_chat:
-                    chat_id = event.chat_id
-                    db = f"data{chat_id}.db"
-
-                    try:
-                        chat_event = event.message.action['type']
-                        action_user_id = event.message.action['member_id']
-                    except:
-                        chat_event = 'ABCD'
-                        action_user_id = 'B_R_U_H'
-
-                    if chat_event == 'chat_invite_user':
-                        dtb = sqlite3.connect('global_base.db')
-                        c = dtb.cursor()
-                        banned_user_ids = c.execute(f"SELECT user_id, ban_type FROM ban").fetchall()
-                        this_chat_type = (c.execute(f"SELECT chat_type FROM chat WHERE chat_id = '{chat_id}'").fetchone())[0]
-                        chat_array = c.execute(f"SELECT * FROM chat WHERE chat_id = '{chat_id}'").fetchone()
-                        if str(chat_array[0]) == str(chat_id):
-                            chat_greeting = chat_array[3]
-                        else:
-                            chat_greeting = ''
-                        if this_chat_type != 'ms' and this_chat_type != 'bw':
-                            c_type = 'No'
-                        else:
-                            c_type = 'Pl'
-                        dtb.commit()
-                        dtb.close()
-                        g_ban_trigger = ''
-                        for i in banned_user_ids:
-                            if int(i[0]) == int(action_user_id):
-                                g_ban_trigger = i[1]
-                        if Data(db).get_ban(action_user_id)[2] == 0 and str(g_ban_trigger) != str(c_type):
-                            Data(db).new_user(action_user_id)
-                            if chat_greeting != 'Clear' and chat_greeting != '':
-                                sender(chat_id, f"[id{action_user_id}|🔔] Приветствие, установленное в беседе 🔔\n\n{chat_greeting}")
-                        else:
-                            sender(chat_id, f"[id{action_user_id}|Пользователь] заблокирован в этом чате!")
-                            vk.messages.removeChatUser(chat_id=chat_id, user_id=action_user_id)
-
-                    if chat_event == 'chat_kick_user':
-                        db = sqlite3.connect(db)
-                        c = db.cursor()
-                        chat_ids = (c.execute(f"SELECT user_id FROM users").fetchall())
-                        db.commit()
-                        db.close()
-                        for i in chat_ids:
-                            if str(i) == str(action_user_id):
-                                Data(db).user_kick(action_user_id)
 
         except requests.exceptions.ReadTimeout:
             print("\n Переподключение к серверам ВК \n")
