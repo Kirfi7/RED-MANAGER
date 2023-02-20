@@ -108,7 +108,6 @@ while True:
             for event in lp.listen():
 
                 uix_now = int(str(datetime.datetime.now().timestamp()).split('.')[0])
-                print(event.type, event.message)
                 chat_id = event.chat_id
                 db = f"data{chat_id}.db"
 
