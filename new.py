@@ -1118,7 +1118,7 @@ while True:
                                 sender(chat_id, "Бот успешно запущен!")
 
                         elif cmd in dev_commands and roles_access == 1:
-                            if str(from_user_id) in DEV_IDS
+                            if str(from_user_id) in DEV_IDS:
 
                                 if cmd == 'sync':
                                     database = sqlite3.connect('global_base.db')
