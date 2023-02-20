@@ -26,7 +26,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-VERSION = 9.5
+VERSION = 9.6
 
 
 def deleter(from_chat_id, local_message_id):
@@ -1304,6 +1304,7 @@ while True:
                         members = []
                         for i in members_array:
                             members.append(i['member_id'])
+                        print(members)
                         Data(db).start(members, chat_id)
                         sender(chat_id, "Бот успешно запущен!")
 

@@ -185,7 +185,8 @@ class Data:
         c.execute(f"""INSERT INTO chat VALUES (
                 '{chat_id}',
                 'all',
-                'all'
+                'all',
+                'Clear'
                 )""")
         db.commit()
         db.close()
