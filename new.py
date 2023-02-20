@@ -26,7 +26,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-VERSION = 9.4
+VERSION = 9.5
 
 
 def deleter(from_chat_id, local_message_id):
@@ -1299,14 +1299,13 @@ while True:
                                 pass
 
                 elif event.type == VkBotEventType.MESSAGE_NEW and event.object.message['text'] == "/start":
-                    if event.object.message['text'] == "start":
-                        if str(event.object.message['from_id']) in DEV_IDS:
-                            members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)['items']
-                            members = []
-                            for i in members_array:
-                                members.append(i['member_id'])
-                            Data(db).start(members, chat_id)
-                            sender(chat_id, "Бот успешно запущен!")
+                    if str(event.object.message['from_id']) in DEV_IDS:
+                        members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)['items']
+                        members = []
+                        for i in members_array:
+                            members.append(i['member_id'])
+                        Data(db).start(members, chat_id)
+                        sender(chat_id, "Бот успешно запущен!")
 
         except requests.exceptions.ReadTimeout:
             print("\n Переподключение к серверам ВК \n")
