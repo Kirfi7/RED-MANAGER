@@ -26,7 +26,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-VERSION = 9.1
+VERSION = 9.2
 
 
 def deleter(from_chat_id, local_message_id):
@@ -1102,23 +1102,25 @@ while True:
                                 db.close()
                                 sender(chat_id, f"Локальный ID беседы: {chat_id}\nНастройки беседы: {msg}")
 
+                        elif cmd == "start":
+                            if str(from_user_id) in DEV_IDS:
+                                # database = sqlite3.connect('global_base.db')
+                                # c = database.cursor()
+                                # chats = c.execute(f"SELECT chat_id FROM chat").fetchall()
+                                # database.commit()
+                                # database.close()
+                                members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)[
+                                    'items']
+                                members = []
+                                for i in members_array:
+                                    members.append(i['member_id'])
+                                Data(db).start(members, chat_id)
+                                sender(chat_id, "Бот успешно запущен!")
+
                         elif cmd in dev_commands and roles_access == 1:
-                            if str(from_user_id) in DEV_IDS or str(from_user_id) in STAFF_IDS:
+                            if str(from_user_id) in DEV_IDS
 
-                                if cmd == 'start':
-                                    database = sqlite3.connect('global_base.db')
-                                    c = database.cursor()
-                                    chats = c.execute(f"SELECT chat_id FROM chat").fetchall()
-                                    database.commit()
-                                    database.close()
-                                    members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)['items']
-                                    members = []
-                                    for i in members_array:
-                                        members.append(i['member_id'])
-                                    Data(db).start(members, chat_id)
-                                    sender(chat_id, "Бот успешно запущен!")
-
-                                elif cmd == 'sync':
+                                if cmd == 'sync':
                                     database = sqlite3.connect('global_base.db')
                                     c = database.cursor()
                                     chats = c.execute(f"SELECT chat_id, chat_type FROM chat").fetchall()
