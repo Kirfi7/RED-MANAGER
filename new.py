@@ -26,7 +26,7 @@ lp = VkBotLongPoll(vk_session, 218266206)
 vk = vk_session.get_api()
 
 # Проставлять при апдейте коммита
-VERSION = 9.2
+VERSION = 9.4
 
 
 def deleter(from_chat_id, local_message_id):
@@ -154,7 +154,7 @@ while True:
                             if str(i) == str(action_user_id):
                                 Data(db).user_kick(action_user_id)
 
-                if event.type == VkBotEventType.MESSAGE_NEW:
+                if event.type == VkBotEventType.MESSAGE_NEW and event.object.message['text'] != "/start":
 
                     # вытягиваю дефолт
                     from_user_id = event.object.message['from_id']
@@ -173,9 +173,10 @@ while True:
 
                     # получаем уровень пользователя
                     lvl = int(Data(db).get_role(from_user_id)[2])
-
-                    is_mute = 0; is_quiet = 0
-                    is_quiet_del = 0; is_muted_del = 0
+                    is_mute = 0
+                    is_quiet = 0
+                    is_quiet_del = 0
+                    is_muted_del = 0
 
                     for i in mute_array:
                         if int(i[0]) == from_user_id:
@@ -1102,21 +1103,6 @@ while True:
                                 db.close()
                                 sender(chat_id, f"Локальный ID беседы: {chat_id}\nНастройки беседы: {msg}")
 
-                        elif cmd == "start":
-                            if str(from_user_id) in DEV_IDS:
-                                # database = sqlite3.connect('global_base.db')
-                                # c = database.cursor()
-                                # chats = c.execute(f"SELECT chat_id FROM chat").fetchall()
-                                # database.commit()
-                                # database.close()
-                                members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)[
-                                    'items']
-                                members = []
-                                for i in members_array:
-                                    members.append(i['member_id'])
-                                Data(db).start(members, chat_id)
-                                sender(chat_id, "Бот успешно запущен!")
-
                         elif cmd in dev_commands and roles_access == 1:
                             if str(from_user_id) in DEV_IDS:
 
@@ -1311,6 +1297,16 @@ while True:
                                     sender(chat_id, "Недостаточно прав!")
                             else:
                                 pass
+
+                elif event.type == VkBotEventType.MESSAGE_NEW and event.object.message['text'] == "/start":
+                    if event.object.message['text'] == "start":
+                        if str(event.object.message['from_id']) in DEV_IDS:
+                            members_array = vk.messages.getConversationMembers(peer_id=2000000000 + chat_id)['items']
+                            members = []
+                            for i in members_array:
+                                members.append(i['member_id'])
+                            Data(db).start(members, chat_id)
+                            sender(chat_id, "Бот успешно запущен!")
 
         except requests.exceptions.ReadTimeout:
             print("\n Переподключение к серверам ВК \n")
