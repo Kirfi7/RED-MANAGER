@@ -254,8 +254,8 @@ class Data:
 
     def staff(self):
         msg_5 = '👑 Главный Администратор:\n— [id468509613|Kirfi_Marciano]' \
-              '\n\n👑 Зам. Главного Администратора:\n— [id327113505|Ricardo_Vendetta]\n— [id16715256|Prokhor_Adzinets]' \
-                '\n\n👑 Кураторы Администрации:\n— [id534422651|Mikhail_Pearson]\n— [id137480835|Serega_Forestry]\n'
+              '\n\n👑 Зам. Главного Администратора:\n— [id16715256|Prokhor_Adzinets]\n— [id137480835|Serega_Forestry]' \
+                '\n\n👑 Кураторы Администрации:\n— [id534422651|Mikhail_Pearson]\n— [id345814069|Kostya_Vagner]\n'
         r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '4'").fetchall()
         msg_4 = msg_5 + '\n⭐ Старшие Администраторы:\n'
         for i in range(len(r)):
@@ -264,7 +264,7 @@ class Data:
             for_nick = fet.fetchone()[0]
             if for_nick == 'Нет' or for_nick == 'None' or for_nick == 'Error' or for_nick == '':
                 for_nick = get_name(for_id)
-            msg_4 = msg_4 + f'— [id{for_id}|{for_nick}]\n'
+            msg_4 = msg_4 + f'— @id{for_id} ({for_nick})\n'
         r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '3'").fetchall()
         msg_3 = msg_4 + '\n⭐ Администраторы:\n'
         for i in range(len(r)):
@@ -273,7 +273,7 @@ class Data:
             for_nick = fet.fetchone()[0]
             if for_nick == 'Нет' or for_nick == 'None' or for_nick == 'Error' or for_nick == '':
                 for_nick = get_name(for_id)
-            msg_3 = msg_3 + f'— [id{for_id}|{for_nick}]\n'
+            msg_3 = msg_3 + f'— @id{for_id} ({for_nick})\n'
         r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '2'").fetchall()
         msg_2 = msg_3 + '\n🛡 Старшие Модераторы:\n'
         for i in range(len(r)):
@@ -282,7 +282,7 @@ class Data:
             for_nick = fet.fetchone()[0]
             if for_nick == 'Нет' or for_nick == 'None' or for_nick == 'Error' or for_nick == '':
                 for_nick = get_name(for_id)
-            msg_2 = msg_2 + f'— [id{for_id}|{for_nick}]\n'
+            msg_2 = msg_2 + f'— @id{for_id} ({for_nick})\n'
         r = self.c.execute(f"SELECT user_id FROM users WHERE admin_roles = '1'").fetchall()
         msg = msg_2 + '\n🛡 Модераторы:\n'
         for i in range(len(r)):
@@ -291,7 +291,7 @@ class Data:
             for_nick = fet.fetchone()[0]
             if for_nick == 'Нет' or for_nick == 'None' or for_nick == 'Error' or for_nick == '':
                 for_nick = get_name(for_id)
-            msg = msg + f'— [id{for_id}|{for_nick}]\n'
+            msg = msg + f'— @id{for_id} ({for_nick})\n'
         return self.conn.commit(), self.conn.close(), msg
 
     def get_acc(self, nick_name):
