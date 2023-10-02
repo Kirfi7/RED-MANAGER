@@ -108,11 +108,12 @@ def set_nick_name(chat_id, user_id, admin_id, argument, msg_id):
 
 def set_global_name(chat_id, user_id, admin_id, argument, msg_id):
     array = argument.split()
-    if len(array) != 2:
+    if len(array) < 2:
         send(chat_id, "Некорректно указан ник или тип бесед!", msg_id)
 
-    nick_name, chat_type = array
-    chats = get_chats_by_type(" ".join(chat_type.split('_')))
+    chat_type, *nick_name = array
+    nick_name = " ".join(nick_name)
+    chats = get_chats_by_type(chat_type.replace('-', ' '))
 
     if len(nick_name) <= 32:
         for chat in chats:
@@ -411,10 +412,14 @@ def quiet(chat_id, admin, msg_id):
 def global_kick(user_id, admin, reason):
     chats = list(get_chats_list())
 
+    answer = ""
+    if reason: answer += f"\nПричина: {reason}"
+
     for chat in chats:
         if not remove_user(chat, user_id):
             continue
-        send(chat, f"{tag(chat, admin)} исключил(-а) {tag(chat, user_id, 'acc')} во всех беседах\nПричина: {reason}")
+
+        send(chat, f"{tag(chat, admin)} исключил(-а) {tag(chat, user_id, 'acc')} во всех беседах{answer}")
 
 
 def global_ban(chat_id, user_id, admin, reason, msg_id, btype):

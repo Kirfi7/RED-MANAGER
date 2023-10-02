@@ -183,6 +183,21 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
                     else:
                         send(chat_id, "Длина причины должна быть не менее 3 и не более 1024 символов!", msg_id)
 
+                elif command in ['pin']:
+                    if "reply_message" in message:
+                        pin_message(user_id, chat_id, message.reply_message['conversation_message_id'])
+                    else:
+                        send(chat_id, "Команда должна быть ответом на сообщение!", msg_id)
+
+                elif command in ['unpin']:
+                    remove_pin(user_id, chat_id, msg_id)
+
+                elif command in ['getban']:
+                    if to_id:
+                        get_user_bans(chat_id, to_id, msg_id)
+                    else:
+                        send(chat_id, "Некорректно указан пользователь!", msg_id)
+
             elif command in admin_commands:
                 if level < 2 and user_id not in config.DEV:
                     send(chat_id, "Недостаточно прав!", msg_id)
@@ -215,12 +230,6 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
                     else:
                         send(chat_id, "Некорректно указан пользователь или причина!", msg_id)
 
-                elif command in ['getban']:
-                    if to_id:
-                        get_user_bans(chat_id, to_id, msg_id)
-                    else:
-                        send(chat_id, "Некорректно указан пользователь!", msg_id)
-
                 elif command in ['unban']:
                     if to_id:
                         unban(chat_id, to_id, user_id, msg_id)
@@ -243,14 +252,8 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
                     else:
                         send(chat_id, f"Пользователь указан некорректно!", msg_id)
 
-                elif command in ['pin']:
-                    if "reply_message" in message:
-                        pin_message(user_id, chat_id, message.reply_message['conversation_message_id'])
-                    else:
-                        send(chat_id, "Команда должна быть ответом на сообщение!", msg_id)
-
-                elif command in ['unpin']:
-                    remove_pin(user_id, chat_id, msg_id)
+                elif command in ['ver']:
+                    send(chat_id, f"Текущая версия: {VER}", msg_id)
 
             elif command in sen_admin_commands:
                 if level < 3 and user_id not in config.DEV:
@@ -286,7 +289,7 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
                 elif command in ['gkick', 'снят']:
                     if not access:
                         send(chat_id, "Недостаточно прав!", msg_id)
-                    elif to_id and argument:
+                    elif to_id:
                         global_kick(to_id, user_id, argument)
                     else:
                         send(chat_id, "Некорректно указан пользователь или причина!", msg_id)
@@ -317,9 +320,6 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
                     target, *array = text.split()[1:]
                     type_zov(target, " ".join(array))
 
-                elif command in ['ver']:
-                    send(chat_id, f"Текущая версия: {VER}", msg_id)
-
             elif command in dev_commands:
                 if user_id not in config.DEV:
                     send(chat_id, "Недостаточно прав!", msg_id)
@@ -342,8 +342,10 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
                     else:
                         send(chat_id, f"Пользователь указан некорректно!", msg_id)
 
-    except:
-        raise
+                elif command in ['dev']:
+                    ...
+
+    except: pass
 
 
 def main():
@@ -353,8 +355,7 @@ def main():
             for event in lp.listen():
                 Thread(target=events_handler, args=(event,)).start()
 
-        except:
-            raise
+        except: pass
 
 
 if __name__ == "__main__":

@@ -1,6 +1,5 @@
-token = "vk1.a.q-l-sa0B-tDKvyXPEERVfhMPJxQUmQ0WetiQ28pWzVpj8pzRqUVIDvN1egCFBjcsDdC502zkFA5XzkwtrLucl15Go977fIAKa53O_gujTODriisNrfWvCyxB-wyXEmQOL1zzQ0HZaHxDBuoc9Nz1vUgXTbNiyOdGSdKHLqN4cu6Y0b4mH1FP9oHIQU53s5sZK93helCW74c7B3XaQ2ifMQ"
-group_id = 219256478
-owner = 534422651
+token = "vk1.a.cdyxNqmJCzzn0-Tt2iAvcFdMMv3nL4_cWIYPP-ej_PNbj8J1djSecMC3kHPz3YocqTdOFVfhvQ436PREHf4zVitxHVdDpvAQo0wExZjQRqjrjuSCBb9FXX90EMM_hUiYPp3d8ckMJSdx5DAYJ8N-mzqLhm0cNTw9bhr-h-QuCaCJdectyqmZj8MYEUkHLVVReC3ybm1g9JHFKAf8QdGWgg"
+group_id = 218266206
 
 DEV = {534422651, 16715256, 468509613}
 
@@ -11,12 +10,11 @@ user_commands = {
 moder_commands = {
     'setnick', 'snick', 'rnick', 'removenick', 'getnick', 'gnick', 'nlist', 'nicklist',
     'staff', 'clear', 'чистка', 'mute', 'мут', 'unmute', 'olist', 'find', 'nonicks', 'zov', 'зов',
-    'kick', 'кик', 'warn', 'unwarn', 'getwarn'
+    'kick', 'кик', 'warn', 'unwarn', 'getwarn', 'pin', 'unpin', 'getban'
 }
 
 admin_commands = {
-    'getban', 'pin', 'unpin', 'banlist', 'warnlist', 'history', 'moder', 'rrole', 'removerole',
-    'ban', 'бан', 'unban', 'gsnick'
+    'banlist', 'warnlist', 'history', 'moder', 'rrole', 'removerole', 'ban', 'бан', 'unban', 'gsnick'
 }
 
 sen_admin_commands = {
@@ -34,8 +32,8 @@ dev_commands = {
 roles = {
     0: "Пользователь",
     1: "Модератор",
-    2: "Старший Модератор",
-    3: "Администратор",
-    4: "Старший Администратор",
-    5: "Владелец беседы"
+    2: "Администратор",
+    3: "Старший администратор",
+    4: "Руководство сервера",
+    5: "Разработчик бота"
 }
