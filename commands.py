@@ -3,11 +3,11 @@ from functions import *
 from config import *
 
 
-def chat_start(chat_id, chat_owner, msg_id):
+def chat_start(chat_id, msg_id):
     if chat_id in get_chats_list():
         send(chat_id, "Беседа уже зарегистрирована!", msg_id)
     else:
-        start(chat_id, chat_owner)
+        start(chat_id)
         insert_chat(chat_id)
         send(chat_id, "Беседа успешно зарегистрирована!", msg_id)
 

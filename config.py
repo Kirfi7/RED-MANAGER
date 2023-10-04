@@ -22,7 +22,7 @@ sen_admin_commands = {
 }
 
 staff_commands = {
-   'sadmin', 'gkick', 'снят', 'gban', 'ungban', 'ver', 'typezov', 'gbanpl'
+   'sadmin', 'skick', 'снят', 'sban', 'sunban', 'ver', 'typezov', 'sbanpl'
 }
 
 dev_commands = {

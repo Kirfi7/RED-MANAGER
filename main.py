@@ -50,7 +50,7 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
                     if user_id in config.DEV:
                         if command == 'start':
                             get_users(chat_id)  # Получит ошибку, если бот не админ в беседе
-                            chat_start(chat_id, owner, msg_id)
+                            chat_start(chat_id, msg_id)
                     else:
                         send(chat_id, "Доступно только с правами разработчика!", msg_id)
                 except vk_api.exceptions.ApiError:
@@ -84,7 +84,7 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
 
             elif command in moder_commands:
                 if level < 1 and user_id not in config.DEV:
-                    send(chat_id, "Недостаточно прав!", msg_id)
+                    if chat_id != 17: send(chat_id, "Недостаточно прав!", msg_id)
 
                 elif command in ['mute']:
                     if not access:
@@ -200,7 +200,7 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
 
             elif command in admin_commands:
                 if level < 2 and user_id not in config.DEV:
-                    send(chat_id, "Недостаточно прав!", msg_id)
+                    if chat_id != 17: send(chat_id, "Недостаточно прав!", msg_id)
 
                 elif command in ['banlist']:
                     get_ban_list(chat_id, msg_id)
@@ -257,7 +257,7 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
 
             elif command in sen_admin_commands:
                 if level < 3 and user_id not in config.DEV:
-                    send(chat_id, "Недостаточно прав!", msg_id)
+                    if chat_id != 17: send(chat_id, "Недостаточно прав!", msg_id)
 
                 elif command in ['quiet', 'тишина']:
                     quiet(chat_id, user_id, msg_id)
@@ -276,7 +276,7 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
 
             elif command in staff_commands:
                 if level < 4 and user_id not in config.DEV:
-                    send(chat_id, "Недостаточно прав!", msg_id)
+                    if chat_id != 17: send(chat_id, "Недостаточно прав!", msg_id)
 
                 elif command in ['sadmin']:
                     if not access:
@@ -286,7 +286,7 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
                     else:
                         send(chat_id, f"Пользователь указан некорректно!", msg_id)
 
-                elif command in ['gkick', 'снят']:
+                elif command in ['skick', 'снят']:
                     if not access:
                         send(chat_id, "Недостаточно прав!", msg_id)
                     elif to_id:
@@ -294,7 +294,7 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
                     else:
                         send(chat_id, "Некорректно указан пользователь или причина!", msg_id)
 
-                elif command in ['gban']:
+                elif command in ['sban']:
                     if not access:
                         send(chat_id, "Недостаточно прав!", msg_id)
                     elif to_id and argument:
@@ -302,7 +302,7 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
                     else:
                         send(chat_id, "Некорректно указан пользователь или причина!", msg_id)
 
-                elif command in ['gbanpl']:
+                elif command in ['sbanpl']:
                     if not access:
                         send(chat_id, "Недостаточно прав!", msg_id)
                     elif to_id and argument:
@@ -310,7 +310,7 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
                     else:
                         send(chat_id, "Некорректно указан пользователь или причина!", msg_id)
 
-                elif command in ['ungban']:
+                elif command in ['sunban']:
                     if to_id:
                         global_unban(chat_id, to_id, user_id, msg_id)
                     else:
@@ -345,7 +345,8 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
                 elif command in ['dev']:
                     ...
 
-    except: pass
+    except:
+        pass
 
 
 def main():
@@ -355,7 +356,8 @@ def main():
             for event in lp.listen():
                 Thread(target=events_handler, args=(event,)).start()
 
-        except: pass
+        except:
+            pass
 
 
 if __name__ == "__main__":

@@ -22,7 +22,7 @@ class Connect:
         self.lock.release()
 
 
-def start(chat_id: int, owner_id: int):
+def start(chat_id: int):
     with Connect(chat_id) as c:
 
         c.execute("CREATE TABLE admins (user_id INTEGER, level INTEGER)")
@@ -31,8 +31,6 @@ def start(chat_id: int, owner_id: int):
         c.execute("CREATE TABLE bans (user_id INTEGER, admin_id INTEGER, date INTEGER, reason TEXT)")
         c.execute("CREATE TABLE warns (user_id INTEGER, count INTEGER)")
         c.execute("CREATE TABLE logs (user_id INTEGER, admin_id INTEGER, date INTEGER, reason TEXT, type TEXT)")
-
-        c.execute(f"INSERT INTO admins VALUES ('{owner_id}', '5')")
 
 
 def add_admin(chat_id: int, user_id: int, level: int):
@@ -185,7 +183,7 @@ def bans_list(chat_id):
 
 def insert_chat(chat_id):
     with Connect('main') as c:
-        c.execute(f"INSERT INTO chats VALUES ('{chat_id}', 'None', '0')")
+        c.execute(f"INSERT INTO chats VALUES ('{chat_id}', 'None', '0', 'NONE')")
 
 
 def get_chats_list():
