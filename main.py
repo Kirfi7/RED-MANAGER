@@ -31,13 +31,10 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
             argument = get_arg(message)
             to_id = get_to_id(message)
 
-            if "-" in str(to_id):
-                to_id = 0
+            if "-" in str(to_id): to_id = 0
+            try: command = text.split()[0][1:].lower()
+            except IndexError: command = ""
 
-            try:
-                command = text.split()[0][1:].lower()
-            except IndexError:
-                command = ""
             if mute_check(chat_id, user_id, msg_id):
                 return
             if get_quiet(chat_id):

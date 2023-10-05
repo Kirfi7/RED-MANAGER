@@ -26,7 +26,7 @@ staff_commands = {
 }
 
 dev_commands = {
-    'start', 'type', 'chat', 'spec'
+    'start', 'type', 'chat', 'spec', 'dev'
 }
 
 roles = {
