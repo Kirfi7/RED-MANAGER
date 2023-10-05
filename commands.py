@@ -34,6 +34,7 @@ def set_role(chat_id_, user_id, level, msg_id, admin_id, argument):
         else: text = "руководителя сервера"
 
         add_admin(chat_id, user_id, level)
+        if level == 5: continue
         send(chat_id, f"{tag(chat_id, admin_id)} выдал(-а) права {text} {tag(chat_id, user_id, 'dat')}", **msg)
 
 

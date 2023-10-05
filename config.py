@@ -14,7 +14,7 @@ moder_commands = {
 }
 
 admin_commands = {
-    'banlist', 'warnlist', 'history', 'moder', 'rrole', 'removerole', 'ban', 'бан', 'unban', 'gsnick'
+    'banlist', 'warnlist', 'history', 'moder', 'rrole', 'removerole', 'ban', 'бан', 'unban', 'gsnick', 'ver'
 }
 
 sen_admin_commands = {
@@ -22,7 +22,7 @@ sen_admin_commands = {
 }
 
 staff_commands = {
-   'sadmin', 'skick', 'снят', 'sban', 'sunban', 'ver', 'typezov', 'sbanpl'
+   'sadmin', 'skick', 'снят', 'sban', 'sunban', 'typezov', 'sbanpl'
 }
 
 dev_commands = {
