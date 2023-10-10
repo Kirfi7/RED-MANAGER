@@ -5,7 +5,7 @@ from commands import *
 from mute_control import *
 
 lp = VkBotLongPoll(session, group_id)
-VER = "2.4"
+VER = "2.5"
 
 
 def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
@@ -77,7 +77,7 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
 
             elif command in moder_commands:
                 if level < 1 and user_id not in config.DEV:
-                    if chat_id != 17: send(chat_id, "Недостаточно прав!", msg_id)
+                    if chat_id not in config.archive_chats: send(chat_id, "Недостаточно прав!", msg_id)
 
                 elif command in ['mute']:
                     if not access:
@@ -193,7 +193,7 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
 
             elif command in admin_commands:
                 if level < 2 and user_id not in config.DEV:
-                    if chat_id != 17: send(chat_id, "Недостаточно прав!", msg_id)
+                    if chat_id not in config.archive_chats: send(chat_id, "Недостаточно прав!", msg_id)
 
                 elif command in ['banlist']:
                     get_ban_list(chat_id, msg_id)
@@ -269,7 +269,7 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
 
             elif command in staff_commands:
                 if level < 4 and user_id not in config.DEV:
-                    if chat_id != 17: send(chat_id, "Недостаточно прав!", msg_id)
+                    if chat_id not in config.archive_chats: send(chat_id, "Недостаточно прав!", msg_id)
 
                 elif command in ['sadmin']:
                     if not access:
@@ -313,6 +313,18 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
                     target, *array = text.split()[1:]
                     type_zov(target, " ".join(array))
 
+                elif command in ['report']:
+                    text = "" if not argument else f" Репорт уже {argument}!"
+                    type_zov("АДМ", "В срочном порядке зайдите на сервер!" + text)
+
+                elif command in ['permmute']:
+                    if not access:
+                        send(chat_id, "Недостаточно прав!", msg_id)
+                    elif to_id:
+                        mute(chat_id, to_id, user_id, 99_999_999, msg_id)
+                    else:
+                        send(chat_id, "Некорректно указан пользователь!", msg_id)
+
             elif command in dev_commands:
                 if user_id not in config.DEV:
                     send(chat_id, "Недостаточно прав!", msg_id)
@@ -334,9 +346,6 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
                         set_role(chat_id, to_id, 4, msg_id, user_id, argument)
                     else:
                         send(chat_id, f"Пользователь указан некорректно!", msg_id)
-
-                elif command in ['dev']:
-                    set_role(chat_id, user_id, 5, msg_id, user_id, "ALL")
 
     except:
         pass

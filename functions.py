@@ -1,5 +1,6 @@
 import re
 
+import config
 from vk_functions import *
 from data_functions import *
 
@@ -40,9 +41,9 @@ def get_arg(message):
 
 
 def get_role(chat_id, user_id):
+    if user_id in config.DEV: return 5
     response = get_level(chat_id, user_id)
-    if response:
-        return int(response[0])
+    if response: return int(response[0])
     return 0
 
 

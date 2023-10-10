@@ -1,4 +1,3 @@
-import config
 from functions import *
 from config import *
 
@@ -141,16 +140,15 @@ def nick_list(chat_id, msg_id):
     if not array:
         return send(chat_id, "Нет участников с установленными никнеймами!", msg_id)
 
-    pages, data, c = 1, {}, 0
+    pages, data = 1, {}
     data[pages] = ""
 
     for user, nick in array:
-        c += 1
-        data[pages] += f"\n{c}) @id{user} ({nick})"
+        data[pages] += f"\n{nick} — [id{user}|{get_vk_name(user)}]"
 
         if len(data[pages]) > 3600:
             pages += 1
-            data[pages], c = "", 0
+            data[pages] = ""
 
     send(chat_id, f"Список пользователей с никами:{data[1]}", msg_id)
     if pages > 1:

@@ -63,11 +63,6 @@ def get_online(chat_id):
     })['items'][0]['chat_settings']['active_ids']
 
 
-def im_admin(chat_id):
-    users = session.method("messages.getConversationMembers", {
-        "peer_id": 2000000000 + chat_id
-    })["items"]
-    for user in users:
-        if user['member_id'] == (group_id * -1):
-            return True
-    return False
+def get_vk_name(user_id):
+    data = session.method("users.get", {"user_ids": user_id})[0]
+    return data["first_name"] + " " + data["last_name"]

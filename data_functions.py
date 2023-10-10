@@ -210,7 +210,7 @@ def global_getban(user_id):
 def get_quiet(chat_id):
     with Connect('main') as c:
         result = c.execute(f"SELECT quiet FROM chats WHERE chat_id = '{chat_id}'").fetchone()
-    return True if result else False
+    return int(result[0]) if result else 0
 
 
 def set_quiet(chat_id, quiet: bool):
