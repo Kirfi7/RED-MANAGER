@@ -197,7 +197,7 @@ def staff_list(chat_id, msg_id):
 
     text = ("Главный администратор:\n[id468509613|Kirfi_Marciano]\n\n"
             "Зам. главного администратора:\n[id16715256|Prokhor_Adzinets]\n[id534422651|Mikhail_Pearson]\n\n"
-            "Кураторы администрации:\n[id345814069|Kostya_Vagner]\n[id799543560|Shark_Nightmare]\n")
+            "Кураторы администрации:\n[id345814069|Kostya_Vagner]\n")
     for key in admins:
         text += f"\n{key}\n"
 

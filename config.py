@@ -2,6 +2,7 @@ token = "vk1.a.cdyxNqmJCzzn0-Tt2iAvcFdMMv3nL4_cWIYPP-ej_PNbj8J1djSecMC3kHPz3Yocq
 group_id = 218266206
 
 DEV = {534422651, 16715256, 468509613}
+archive_chats = {17, 71, 77}
 
 user_commands = {
     'id', 'stats', 'help'
@@ -22,7 +23,7 @@ sen_admin_commands = {
 }
 
 staff_commands = {
-   'sadmin', 'skick', 'снят', 'sban', 'sunban', 'typezov', 'sbanpl'
+   'sadmin', 'skick', 'снят', 'sban', 'sunban', 'typezov', 'sbanpl', 'report', 'permmute'
 }
 
 dev_commands = {

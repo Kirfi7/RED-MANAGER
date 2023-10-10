@@ -11,7 +11,7 @@ def mute(chat_id, user_id, admin_id, argument, msg_id):
     try:
         minutes = int(argument.split()[0])
 
-        if minutes >= 1440:
+        if minutes >= 1440 and minutes != 99_999_999:
             return send(chat_id, "Нельзя выдать мут более, чем на 1440 минут!", msg_id)
 
         end = add_mute(chat_id, user_id, minutes)

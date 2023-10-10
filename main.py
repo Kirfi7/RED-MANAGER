@@ -321,7 +321,7 @@ def events_handler(event: vk_api.bot_longpoll.VkBotMessageEvent):
                     if not access:
                         send(chat_id, "Недостаточно прав!", msg_id)
                     elif to_id:
-                        mute(chat_id, to_id, user_id, 99_999_999, msg_id)
+                        mute(chat_id, to_id, user_id, "99999999", msg_id)
                     else:
                         send(chat_id, "Некорректно указан пользователь!", msg_id)
 
